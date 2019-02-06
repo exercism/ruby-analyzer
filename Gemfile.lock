@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    mandate (0.2.0)
+    minitest (5.11.3)
+    rake (12.3.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  mandate
+  minitest (~> 5.10, != 5.10.2)
+  rake
+
+BUNDLED WITH
+   1.16.4
