@@ -6,8 +6,11 @@ git_source(:github) do |repo_name|
 end
 
 gem 'rake'
-gem 'mandate'
+gem 'json'
+gem 'activesupport'
 
 group :test do
   gem 'minitest', '~> 5.10', '!= 5.10.2'
+  gem 'minitest-stub-const'
+  gem 'mocha'
 end
