@@ -6,6 +6,7 @@ class HelloCollectorTest < Minitest::Test
   # Test the module/class
   # ###
   def test_simple_class_passes
+    #skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -67,63 +68,6 @@ class HelloCollectorTest < Minitest::Test
   # ###
   # Test the method exists and is correctly structured
   # ###
-  
-  def test__with_random_methods
-    #skip
-    source = %q{
-      class TwoFer
-        def self.some_method
-        end
-
-        def self.two_fer(name="you")
-          "One for #{name}, one for me."
-        end
-
-        def self.other_method
-        end
-      end
-    }
-    results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal [], results[:messages]
-  end#
-  def test_different_self_definition
-    #skip
-    source = %q{
-      class TwoFer
-        class << self
-          def two_fer(name="you")
-            "One for #{name}, one for me."
-          end
-        end
-      end
-    }
-    results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal [], results[:messages]
-  end
- 
-  def test_different_self_definition_with_random_methods
-    #skip
-    source = %q{
-      class TwoFer
-        class << self
-          def some_method
-          end
-
-          def two_fer(name="you")
-            "One for #{name}, one for me."
-          end
-
-          def other_method
-          end
-        end
-      end
-    }
-    results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal [], results[:messages]
-  end
 
   def test_different_method_value_fails
     #skip
@@ -167,20 +111,6 @@ class HelloCollectorTest < Minitest::Test
     assert_equal ["There is not a correct default param - the tests will fail"], results[:messages]
   end
 
-  def test_different_default_value_fails
-    #skip
-    source = %q{
-      module TwoFer
-        def self.two_fer(name="them")
-          "One for #{name}, one for me."
-        end
-      end
-    }
-    results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:messages]
-  end
-
   def test_splat_fails
     #skip
     source = %q{
@@ -208,7 +138,7 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
+    assert results[:approve]
     assert_equal ["Rather than using string building, use interpolation"], results[:messages]
   end
 
@@ -222,7 +152,7 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
+    assert results[:approve]
     assert_equal ["Rather than using the format method, use interpolation"], results[:messages]
   end
 
@@ -236,11 +166,11 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
+    assert results[:approve]
     assert_equal ["Rather than using string's format/percentage method, use interpolation"], results[:messages]
   end
 
-  def test_conditional_and_wrong_param
+  def test_conditional_with_nil
     #skip
     source = %q{
       module TwoFer
@@ -258,6 +188,56 @@ class HelloCollectorTest < Minitest::Test
     assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:messages]
   end
 
+  def test_conditional_with_nil_reversed
+    #skip
+    source = %q{
+      module TwoFer
+        def self.two_fer(name=nil)
+          if nil == name
+            "One for you, one for me."
+          else
+            "One for #{name}, one for me."
+          end
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    refute results[:approve]
+    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:messages]
+  end
+
+  def test_conditional_with_string
+    #skip
+    source = %q{
+      module TwoFer
+        def self.two_fer(name='dog')
+          if name == 'dog'
+            "One for you, one for me."
+          else
+            "One for #{name}, one for me."
+          end
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    refute results[:approve]
+    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:messages]
+  end
+
+  def test_unknown_solution
+    #skip
+    source = %q{
+      module TwoFer
+        def self.two_fer(name=nil)
+          I.have.no.idea.what.this.is
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    refute results[:approve]
+    assert results[:refer_to_mentor]
+    assert_equal [], results[:messages]
+  end
 end
 
 # Explicit return
@@ -269,19 +249,7 @@ class TwoFer
 end
 =end
 
-# Use of class << self
-=begin
-class TwoFer
-  class << self
-    def two_fer(name="you")
-      "One for #{name}, one for me."
-    end
-  end
-end
-=end
-
-
-
+# Use of premature return
 =begin
 class TwoFer
   class << self

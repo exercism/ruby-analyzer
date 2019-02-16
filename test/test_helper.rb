@@ -10,3 +10,20 @@ end
 
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "analyzer"
+
+class Minitest::Test
+  def parse_ast(source)
+    @root_node ||= begin
+      buffer        = Parser::Source::Buffer.new(nil)
+      buffer.source = source
+      builder       = RuboCop::AST::Builder.new
+      parser        = Parser::CurrentRuby.new(builder)
+
+      parser.parse(buffer)
+    end
+  end
+
+  def extract_class_from_ast(source, classname = "TestClass")
+    ExtractModuleOrClass.(parse_ast(source), classname)
+  end
+end

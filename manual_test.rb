@@ -4,12 +4,12 @@ require 'pp'
 require 'pry'
 
 source = %q{
-  class TwoFer
-    class << self
-      def two_fer(name="you")
+  module TwoFer
+    def self.two_fer(name=nil)
+      if name == nil
+        "One for you, one for me."
+      else
         "One for #{name}, one for me."
-      end
-      def foobar
       end
     end
   end
