@@ -5,7 +5,7 @@ require 'minitest/pride'
 require "mocha/setup"
 
 class Minitest::Test
-  SAFE_WRITE_PATH = '/tmp'
+  SAFE_WRITE_PATH = Pathname.new('/tmp')
 end
 
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
