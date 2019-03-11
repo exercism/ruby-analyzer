@@ -122,7 +122,7 @@ class HelloCollectorTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     refute results[:approve]
-    assert_equal ["Rather than using *foos, how about acutally setting a paramater called 'name'?"], results[:messages]
+    assert_equal ["Rather than using *foos, how about actually setting a parameter called 'name'?"], results[:messages]
   end
 
   # ### 
