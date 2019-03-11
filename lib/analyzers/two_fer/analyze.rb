@@ -4,7 +4,7 @@ module TwoFer
     no_module: "No module or class called TwoFer",
     no_method: "No method called two_fer",
     splat_args: "Rather than using *%s, how about actually setting a parameter called 'name'?",
-    missing_default_param: "There is not a correct default param - the tests will fail",
+    missing_default_param: "There is no correct default param - the tests will fail",
     incorrect_default_param: "You could set the default value to 'you' to avoid conditionals",
     string_building: "Rather than using string building, use interpolation",
     kernel_format: "Rather than using the format method, use interpolation",
@@ -146,7 +146,7 @@ module TwoFer
       # method rather than insist on it being the first line.
       return unless loc.type == :if
 
-      # Get the clause of the conditional (ie the bit after the "if" keyword)
+      # Get the clause of the conditional (i.e. the bit after the "if" keyword)
       conditional = extract_conditional_clause(loc)
 
       # Let's warn about using a better default if they `if name == nil`
@@ -155,7 +155,7 @@ module TwoFer
         disapprove!(:incorrect_default_param)
       end
 
-      # Same thing but if they do it the other way round, ie `if nil == name`
+      # Same thing but if they do it the other way round, i.e. `if nil == name`
       if conditional.receiver == default_argument &&
          is_lvar?(conditional.first_argument, :name)
         disapprove!(:incorrect_default_param)
