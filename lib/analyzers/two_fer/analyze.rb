@@ -61,8 +61,8 @@ module TwoFer
     def check_structure!
       # First we check that there is a two-fer class or module
       # and that it contains a method called two-fer
-      disapprove!(:no_module) unless two_fer_module
-      disapprove!(:no_method) unless main_method
+      disapprove!(:no_module) unless target_module
+      disapprove!(:no_method) unless target_method
     end
 
     def check_method_signature!
@@ -71,11 +71,11 @@ module TwoFer
       disapprove!(:missing_default_param) if parameters.size != 1
 
       # If they provide a splat, the tests can pass but we
-      # should suggest they use a real paramater
-      disapprove!(:splat_args, first_paramater_name) if first_paramater.restarg_type?
+      # should suggest they use a real parameter
+      disapprove!(:splat_args, first_parameter_name) if first_parameter.restarg_type?
 
       # If they don't provide an optional argument the tests will fail
-      disapprove!(:missing_default_param) unless first_paramater.optarg_type?
+      disapprove!(:missing_default_param) unless first_parameter.optarg_type?
     end
 
     def check_for_optimal_solution!
@@ -106,7 +106,7 @@ module TwoFer
       return unless default_argument_is_optimal?
       return unless one_line_solution?
 
-      loc = first_line_in_method(main_method)
+      loc = SA::Helpers.extract_first_line_from_method(target_method)
 
       # In the case of:
       # "One for " + name + ", one for me."
@@ -138,7 +138,7 @@ module TwoFer
     end
 
     def check_for_conditional_on_default_argument!
-      loc = first_line_in_method(main_method)
+      loc = SA::Helpers.extract_first_line_from_method(target_method)
 
       # If we don't have a conditional, then let's get out of here.
       #
@@ -147,17 +147,17 @@ module TwoFer
       return unless loc.type == :if
 
       # Get the clause of the conditional (i.e. the bit after the "if" keyword)
-      conditional = extract_conditional_clause(loc)
+      conditional = SA::Helpers.extract_conditional_clause(loc)
 
       # Let's warn about using a better default if they `if name == nil`
-      if is_lvar?(conditional.receiver, :name) &&
+      if SA::Helpers.lvar?(conditional.receiver, :name) &&
          conditional.first_argument == default_argument
         disapprove!(:incorrect_default_param)
       end
 
       # Same thing but if they do it the other way round, i.e. `if nil == name`
       if conditional.receiver == default_argument &&
-         is_lvar?(conditional.first_argument, :name)
+         SA::Helpers.lvar?(conditional.first_argument, :name)
         disapprove!(:incorrect_default_param)
       end
     end
@@ -170,70 +170,44 @@ module TwoFer
     end
 
     def one_line_solution?
-      main_method.body.line_count == 1
+      target_method.body.line_count == 1
     end
 
     def using_string_interpolation?
-      main_method.body.dstr_type?
+      target_method.body.dstr_type?
     end
 
     def string_interpolation_has_three_components?
-      #main_method.body.pry
-      main_method.body.children.size == 3
-    end
-
-    # ###
-    # Static analysis helpers
-    # ###
-    def num_lines_in_method(method)
-      method.body.child_nodes.size
-    end
-
-    def first_line_in_method(method)
-      # A begin block signifies multiple lines
-      # so we return the first line.
-      method.body.children.first if main_method.body.type == :begin
-
-      # Without a begin block we just have one line,
-      # so we return the method body, which *is* the first line
-      method.body
-    end
-
-    # Is this an lvar (local variable) with a given name?
-    def is_lvar?(node, name)
-      node.lvar_type? && node.children[0] == name
-    end
-
-    def extract_conditional_clause(loc)
-      loc.children[0]
+      #target_method.body.pry
+      target_method.body.children.size == 3
     end
 
     memoize
-    def two_fer_module
-      ExtractModuleOrClass.(root_node, "TwoFer")
+    def target_module
+      SA::Helpers.extract_module_or_class(root_node, "TwoFer")
     end
 
     memoize
-    def main_method
-      ExtractClassMethod.(two_fer_module, "two_fer")
+    def target_method
+      SA::Helpers.extract_class_method(target_module, "two_fer")
     end
 
     memoize
-    def paramaters
-      main_method.arguments
+    def parameters
+      target_method.arguments
     end
 
     memoize
-    def first_paramater
-      paramaters.first
+    def first_parameter
+      parameters.first
     end
 
-    def first_paramater_name
-      first_paramater.children[0]
+    def first_parameter_name
+      first_parameter.children[0]
     end
 
     def default_argument
-      first_paramater.children[1]
+      first_parameter.children[1]
     end
 
     def default_argument_value

@@ -24,6 +24,14 @@ class Minitest::Test
   end
 
   def extract_class_from_ast(source, classname = "TestClass")
-    ExtractModuleOrClass.(parse_ast(source), classname)
+    SA::ExtractModuleOrClass.(parse_ast(source), classname)
+  end
+
+  def extract_method_from_ast(source, method_name = "foobar")
+    SA::ExtractInstanceMethod.(parse_ast(source), method_name)
+  end
+
+  def s(type, *children)
+    Parser::AST::Node.new(type, children)
   end
 end

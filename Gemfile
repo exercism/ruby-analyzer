@@ -13,7 +13,6 @@ gem 'activesupport'
 gem 'parser'
 gem 'rubocop'
 
-
 group :test do
   gem 'minitest', '~> 5.10', '!= 5.10.2'
   gem 'minitest-stub-const'
