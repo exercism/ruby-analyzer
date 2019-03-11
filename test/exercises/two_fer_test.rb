@@ -94,7 +94,7 @@ class HelloCollectorTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     refute results[:approve]
-    assert_equal ["There is not a correct default param - the tests will fail"], results[:messages]
+    assert_equal ["There is no correct default param - the tests will fail"], results[:messages]
   end
 
   def test_missing_default_value_fails
@@ -108,7 +108,7 @@ class HelloCollectorTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     refute results[:approve]
-    assert_equal ["There is not a correct default param - the tests will fail"], results[:messages]
+    assert_equal ["There is no correct default param - the tests will fail"], results[:messages]
   end
 
   def test_splat_fails
@@ -122,7 +122,7 @@ class HelloCollectorTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     refute results[:approve]
-    assert_equal ["Rather than using *foos, how about acutally setting a paramater called 'name'?"], results[:messages]
+    assert_equal ["Rather than using *foos, how about actually setting a parameter called 'name'?"], results[:messages]
   end
 
   # ### 
