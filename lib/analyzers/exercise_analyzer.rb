@@ -1,4 +1,11 @@
 class ExerciseAnalyzer
+
+  # This is just flow-control for quickly exiting the 
+  # analysis. We probably don't want to do things this 
+  # way eventually, but it helps remove noise for now.
+  class FinishedFlowControlException < RuntimeError
+  end
+
   def initialize(code_to_analyze)
     @code_to_analyze = code_to_analyze
     @approve = false
@@ -7,10 +14,12 @@ class ExerciseAnalyzer
   end
 
   def call
-    analyze!
+    begin
+      analyze!
+    rescue FinishedFlowControlException
+    end
     results
   end
-
 
   def results
     {
