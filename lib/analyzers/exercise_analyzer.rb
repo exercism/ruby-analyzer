@@ -1,16 +1,15 @@
 class ExerciseAnalyzer
 
-  # This is just flow-control for quickly exiting the 
-  # analysis. We probably don't want to do things this 
+  # This is just flow-control for quickly exiting the
+  # analysis. We probably don't want to do things this
   # way eventually, but it helps remove noise for now.
   class FinishedFlowControlException < RuntimeError
   end
 
   def initialize(code_to_analyze)
     @code_to_analyze = code_to_analyze
-    @approve = false
-    @refer_to_mentor = false
-    @messages = []
+    @status = nil
+    @comments = []
   end
 
   def call
@@ -23,9 +22,8 @@ class ExerciseAnalyzer
 
   def results
     {
-      approve: approve,
-      refer_to_mentor: refer_to_mentor,
-      messages: messages
+      status: status,
+      comments: comments
     }
   end
 
@@ -33,7 +31,7 @@ class ExerciseAnalyzer
   attr_reader :code_to_analyze
 
   protected
-  attr_accessor :approve, :refer_to_mentor, :messages
+  attr_accessor :status, :comments
 
   def root_node
     @root_node ||= begin

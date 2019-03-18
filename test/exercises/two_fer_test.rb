@@ -1,7 +1,21 @@
 require "test_helper"
 require 'pry'
 
-class HelloCollectorTest < Minitest::Test
+class TwoFerTest < Minitest::Test
+
+  def test_fixtures
+    dir = File.expand_path("#{__FILE__}/../../fixtures/two-fer/")
+    Dir.foreach(dir).each do |id|
+      next unless File.exist?("#{dir}/#{id}/analysis.json")
+
+      expected = TwoFer::Analyze.(File.read("#{dir}/#{id}/two_fer.rb"))
+      actual = JSON.parse(File.read("#{dir}/#{id}/analysis.json"))
+
+      assert_equal expected[:status].to_s, actual['status']
+      assert_equal expected[:comments], actual['comments']
+    end
+  end
+
   # ###
   # Test the module/class
   # ###
@@ -15,8 +29,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal [], results[:messages]
+    assert_equal :approve_as_optimal, results[:status]
+    assert_equal [], results[:comments]
   end
 
   def test_simple_module_passes
@@ -29,8 +43,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal [], results[:messages]
+    assert_equal :approve_as_optimal, results[:status]
+    assert_equal [], results[:comments]
   end
 
   def test_simple_module_with_bookkeeping_passes
@@ -47,8 +61,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal [], results[:messages]
+    assert_equal :approve_as_optimal, results[:status]
+    assert_equal [], results[:comments]
   end
 
   def test_different_module_name_fails
@@ -61,8 +75,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["No module or class called TwoFer"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["No module or class called TwoFer"], results[:comments]
   end
 
   # ###
@@ -79,8 +93,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["No method called two_fer"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["No method called two_fer"], results[:comments]
   end
 
   def test_missing_param
@@ -93,8 +107,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["There is no correct default param - the tests will fail"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["There is no correct default param - the tests will fail"], results[:comments]
   end
 
   def test_missing_default_value_fails
@@ -107,8 +121,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["There is no correct default param - the tests will fail"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["There is no correct default param - the tests will fail"], results[:comments]
   end
 
   def test_splat_fails
@@ -121,8 +135,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["Rather than using *foos, how about actually setting a parameter called 'name'?"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["Rather than using *foos, how about actually setting a parameter called 'name'?"], results[:comments]
   end
 
   # ### 
@@ -138,8 +152,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal ["Rather than using string building, use interpolation"], results[:messages]
+    assert_equal :approve_with_comment, results[:status]
+    assert_equal ["Rather than using string building, use interpolation"], results[:comments]
   end
 
   def test_for_kernel_format
@@ -152,8 +166,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal ["Rather than using the format method, use interpolation"], results[:messages]
+    assert_equal :approve_with_comment, results[:status]
+    assert_equal ["Rather than using the format method, use interpolation"], results[:comments]
   end
 
   def test_for_string_format
@@ -166,8 +180,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    assert results[:approve]
-    assert_equal ["Rather than using string's format/percentage method, use interpolation"], results[:messages]
+    assert_equal :approve_with_comment, results[:status]
+    assert_equal ["Rather than using string's format/percentage method, use interpolation"], results[:comments]
   end
 
   def test_conditional_with_nil
@@ -184,8 +198,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:comments]
   end
 
   def test_conditional_with_nil_reversed
@@ -202,8 +216,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:comments]
   end
 
   def test_conditional_with_string
@@ -220,8 +234,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:messages]
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:comments]
   end
 
   def test_unknown_solution
@@ -234,9 +248,8 @@ class HelloCollectorTest < Minitest::Test
       end
     }
     results = TwoFer::Analyze.(source)
-    refute results[:approve]
-    assert results[:refer_to_mentor]
-    assert_equal [], results[:messages]
+    assert_equal :refer_to_mentor, results[:status]
+    assert_equal [], results[:comments]
   end
 end
 

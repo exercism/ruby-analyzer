@@ -214,7 +214,6 @@ module TwoFer
       default_argument.children[0]
     end
 
-
     # ###
     # Flow helpers
     #
@@ -222,26 +221,25 @@ module TwoFer
     # can probably be extracted to parent
     # ###
     def approve!(msg = nil)
-      self.messages << MESSAGES[msg] if msg
-      self.approve = true
+      if msg
+        self.status = :approve_with_comment
+        self.comments << MESSAGES[msg]
+      else
+        self.status = :approve_as_optimal
+      end
 
       raise FinishedFlowControlException
     end
 
     def refer_to_mentor!
-      self.refer_to_mentor = true
-
-      # Refering to mentor is an explicit
-      # command resulting from weirdness
-      # and should override approving
-      self.approve = false
+      self.status = :refer_to_mentor
 
       raise FinishedFlowControlException
     end
 
     def disapprove!(msg, *msg_args)
-      self.messages << (MESSAGES[msg] % msg_args)
-      self.approve = false
+      self.status = :disapprove_with_comment
+      self.comments << (MESSAGES[msg] % msg_args)
 
       raise FinishedFlowControlException
     end
