@@ -12,6 +12,7 @@ require 'rubocop'
 require 'parser/current'
 require 'active_support/inflector'
 
+require_relative "generic/helpers"
 require_relative "generic/extract_class_method"
 require_relative "generic/extract_instance_method"
 require_relative "generic/extract_module_or_class"
