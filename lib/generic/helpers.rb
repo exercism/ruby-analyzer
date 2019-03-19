@@ -4,8 +4,8 @@ module SA
       ExtractModuleOrClass.(*args)
     end
 
-    def self.extract_class_method(*args)
-      ExtractClassMethod.(*args)
+    def self.extract_module_method(*args)
+      ExtractModuleMethod.(*args)
     end
 
     def self.extract_first_line_from_method(method)

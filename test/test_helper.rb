@@ -23,7 +23,15 @@ class Minitest::Test
     end
   end
 
+  def extract_module_from_ast(source, classname = "TestModule")
+    extract_module_or_class_from_ast(source, classname)
+  end
+
   def extract_class_from_ast(source, classname = "TestClass")
+    extract_module_or_class_from_ast(source, classname)
+  end
+
+  def extract_module_or_class_from_ast(source, classname = "TestClass")
     SA::ExtractModuleOrClass.(parse_ast(source), classname)
   end
 

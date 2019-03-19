@@ -189,7 +189,7 @@ module TwoFer
 
     memoize
     def target_method
-      SA::Helpers.extract_class_method(target_module, "two_fer")
+      SA::Helpers.extract_module_method(target_module, "two_fer")
     end
 
     memoize
