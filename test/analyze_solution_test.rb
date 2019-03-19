@@ -8,7 +8,7 @@ class AnalyzeSolutionTest < Minitest::Test
     results_json = mock
     results = mock(to_json: results_json)
 
-    File.expects(:readlines).with(SAFE_WRITE_PATH / "two_fer.rb").returns(code)
+    File.expects(:read).with(SAFE_WRITE_PATH / "two_fer.rb").returns(code)
     File.expects(:open).
       with(SAFE_WRITE_PATH / "analysis.json", "w").yields(
         mock(write: results_json)
