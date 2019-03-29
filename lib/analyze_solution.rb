@@ -4,7 +4,7 @@ class AnalyzeSolution
   initialize_with :exercise_slug, :path
 
   def call
-    code_to_analyze = File.readlines(path / FILENAMES[exercise_slug])
+    code_to_analyze = File.read(path / FILENAMES[exercise_slug])
 
     classified_exercise = exercise_slug.tr('-', '_').classify
     results = "#{classified_exercise}::Analyze".constantize.(code_to_analyze)

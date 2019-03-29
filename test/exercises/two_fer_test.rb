@@ -4,8 +4,10 @@ require 'pry'
 class TwoFerTest < Minitest::Test
 
   def test_fixtures
+    #skip
     dir = File.expand_path("#{__FILE__}/../../fixtures/two-fer/")
     Dir.foreach(dir).each do |id|
+      next if id == "." || id == ".."
       next unless File.exist?("#{dir}/#{id}/analysis.json")
 
       expected = TwoFer::Analyze.(File.read("#{dir}/#{id}/two_fer.rb"))
@@ -76,7 +78,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["No module or class called TwoFer"], results[:comments]
+    assert_equal ["ruby.general.no_target_module"], results[:comments]
   end
 
   # ###
@@ -94,7 +96,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["No method called two_fer"], results[:comments]
+    assert_equal ["ruby.general.no_target_method"], results[:comments]
   end
 
   def test_missing_param
@@ -108,7 +110,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["There is no correct default param - the tests will fail"], results[:comments]
+    assert_equal ["ruby.two_fer.missing_default_param"], results[:comments]
   end
 
   def test_missing_default_value_fails
@@ -122,7 +124,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["There is no correct default param - the tests will fail"], results[:comments]
+    assert_equal ["ruby.two_fer.missing_default_param"], results[:comments]
   end
 
   def test_splat_fails
@@ -136,7 +138,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["Rather than using *foos, how about actually setting a parameter called 'name'?"], results[:comments]
+    assert_equal [["ruby.two_fer.splat_args", :foos]], results[:comments]
   end
 
   # ### 
@@ -153,7 +155,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve_with_comment, results[:status]
-    assert_equal ["Rather than using string building, use interpolation"], results[:comments]
+    assert_equal ["ruby.two_fer.avoid_string_building"], results[:comments]
   end
 
   def test_for_kernel_format
@@ -167,7 +169,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve_with_comment, results[:status]
-    assert_equal ["Rather than using the format method, use interpolation"], results[:comments]
+    assert_equal ["ruby.two_fer.avoid_kernel_format"], results[:comments]
   end
 
   def test_for_string_format
@@ -181,7 +183,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve_with_comment, results[:status]
-    assert_equal ["Rather than using string's format/percentage method, use interpolation"], results[:comments]
+    assert_equal ["ruby.two_fer.avoid_string_format"], results[:comments]
   end
 
   def test_conditional_with_nil
@@ -199,7 +201,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:comments]
+    assert_equal ["ruby.two_fer.incorrect_default_param"], results[:comments]
   end
 
   def test_conditional_with_nil_reversed
@@ -217,7 +219,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:comments]
+    assert_equal ["ruby.two_fer.incorrect_default_param"], results[:comments]
   end
 
   def test_conditional_with_string
@@ -235,7 +237,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove_with_comment, results[:status]
-    assert_equal ["You could set the default value to 'you' to avoid conditionals"], results[:comments]
+    assert_equal ["ruby.two_fer.incorrect_default_param"], results[:comments]
   end
 
   def test_unknown_solution
@@ -250,6 +252,33 @@ class TwoFerTest < Minitest::Test
     results = TwoFer::Analyze.(source)
     assert_equal :refer_to_mentor, results[:status]
     assert_equal [], results[:comments]
+  end
+
+  [%q{
+    class TwoFer
+      def self.two_fer(name="you")
+          "One for %s, one for me." % name
+      end
+    end
+  }, %q{
+      class TwoFer
+      def self.two_fer(name="you")
+          "One for %s, one for me." % name
+      end
+    end
+  }, %q{
+    class TwoFer
+      def self.two_fer(name="you")
+        "One for %s, one for me." % name
+     end
+    end
+  }].each.with_index do |source, idx|
+    define_method "test_incorrect_indentation_#{idx}" do
+      ##skip
+      results = TwoFer::Analyze.(source)
+      assert_equal :disapprove_with_comment, results[:status]
+      assert_equal ["ruby.general.incorrect_indentation"], results[:comments]
+    end
   end
 end
 

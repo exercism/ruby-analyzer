@@ -1,14 +1,15 @@
 module TwoFer
 
   MESSAGES = {
-    no_module: "No module or class called TwoFer",
-    no_method: "No method called two_fer",
-    splat_args: "Rather than using *%s, how about actually setting a parameter called 'name'?",
-    missing_default_param: "There is no correct default param - the tests will fail",
-    incorrect_default_param: "You could set the default value to 'you' to avoid conditionals",
-    string_building: "Rather than using string building, use interpolation",
-    kernel_format: "Rather than using the format method, use interpolation",
-    string_format: "Rather than using string's format/percentage method, use interpolation"
+    no_module:               "ruby.general.no_target_module",
+    no_method:               "ruby.general.no_target_method",
+    incorrect_indentation:   "ruby.general.incorrect_indentation",
+    splat_args:              "ruby.two_fer.splat_args",              #Rather than using *%s, how about actually setting a parameter called 'name'?",
+    missing_default_param:   "ruby.two_fer.missing_default_param",   #"There is no correct default param - the tests will fail",
+    incorrect_default_param: "ruby.two_fer.incorrect_default_param", #You could set the default value to 'you' to avoid conditionals",
+    string_building:         "ruby.two_fer.avoid_string_building",   # "Rather than using string building, use interpolation",
+    kernel_format:           "ruby.two_fer.avoid_kernel_format",     #"Rather than using the format method, use interpolation",
+    string_format:           "ruby.two_fer.avoid_string_format",     #"Rather than using string's format/percentage method, use interpolation"
   }
 
   class Analyze < ExerciseAnalyzer
@@ -97,7 +98,7 @@ module TwoFer
       # done something weird, so let's get a mentor to look at it!
       refer_to_mentor! unless string_interpolation_has_three_components?
 
-      approve!
+      approve_if_whitespace_is_sensible!
     end
 
     def check_for_correct_solution_without_string_interpolaton!
@@ -112,7 +113,7 @@ module TwoFer
       # "One for " + name + ", one for me."
       if loc.method_name == :+ &&
          loc.arguments[0].type == :str
-        approve!(:string_building)
+        approve_if_whitespace_is_sensible!(:string_building)
       end
 
       # In the case of:
@@ -121,7 +122,7 @@ module TwoFer
          loc.receiver == nil &&
          loc.arguments[0].type == :str &&
          loc.arguments[1].type == :lvar
-        approve!(:kernel_format)
+        approve_if_whitespace_is_sensible!(:kernel_format)
       end
 
       # In the case of:
@@ -129,7 +130,7 @@ module TwoFer
       if loc.method_name == :% &&
          loc.receiver.type == :str &&
          loc.arguments[0].type == :lvar
-        approve!(:string_format)
+        approve_if_whitespace_is_sensible!(:string_format)
       end
 
       # If we have a one-line method that passes the tests, then it's not
@@ -182,6 +183,30 @@ module TwoFer
       target_method.body.children.size == 3
     end
 
+    # REFACTOR: This could be refactored to strip blank
+    # lines and then use each_cons(2).
+    def indentation_is_sensible?
+      previous_line = nil
+      code_to_analyze.lines.each do |line|
+        # If the previous line or this line is
+        # just a whitespace line, don't consider it
+        # when checking for indentation
+        unless previous_line == nil ||
+               previous_line =~ /^\s*\n*$/ ||
+               line =~ /^\s*\n*$/
+
+          previous_line_lspace = previous_line[/^ */].size
+          line_lspace = line[/^ */].size
+
+          return false if (previous_line_lspace - line_lspace).abs > 2
+        end
+
+        previous_line = line
+      end
+
+      true
+    end
+
     memoize
     def target_module
       SA::Helpers.extract_module_or_class(root_node, "TwoFer")
@@ -189,7 +214,7 @@ module TwoFer
 
     memoize
     def target_method
-      SA::Helpers.extract_class_method(target_module, "two_fer")
+      SA::Helpers.extract_module_method(target_module, "two_fer")
     end
 
     memoize
@@ -220,15 +245,19 @@ module TwoFer
     # These are totally generic to all exercises and
     # can probably be extracted to parent
     # ###
-    def approve!(msg = nil)
-      if msg
-        self.status = :approve_with_comment
-        self.comments << MESSAGES[msg]
-      else
-        self.status = :approve_as_optimal
-      end
+    def approve_if_whitespace_is_sensible!(msg = nil)
+      if indentation_is_sensible?
+        if msg
+          self.status = :approve_with_comment
+          self.comments << MESSAGES[msg]
+        else
+          self.status = :approve_as_optimal
+        end
+        raise FinishedFlowControlException
 
-      raise FinishedFlowControlException
+      else
+        disapprove!(:incorrect_indentation)
+      end
     end
 
     def refer_to_mentor!
@@ -239,7 +268,11 @@ module TwoFer
 
     def disapprove!(msg, *msg_args)
       self.status = :disapprove_with_comment
-      self.comments << (MESSAGES[msg] % msg_args)
+      if msg_args.length > 0
+        self.comments << [MESSAGES[msg], *msg_args]
+      else
+        self.comments << MESSAGES[msg]
+      end
 
       raise FinishedFlowControlException
     end
