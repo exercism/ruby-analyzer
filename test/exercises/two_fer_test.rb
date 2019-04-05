@@ -4,17 +4,22 @@ require 'pry'
 class TwoFerTest < Minitest::Test
 
   def test_fixtures
-    #skip
-    dir = File.expand_path("#{__FILE__}/../../fixtures/two-fer/")
-    Dir.foreach(dir).each do |id|
+    skip
+    fixtures_dir = File.expand_path("#{__FILE__}/../../fixtures/two-fer/")
+    tmp_dir = File.expand_path("#{__FILE__}/../../../tmp/test/two-fer-fixtures/")
+    FileUtils.rm_rf(tmp_dir)
+    FileUtils.mkdir_p(tmp_dir)
+    FileUtils.cp_r("#{fixtures_dir}/.", tmp_dir)
+
+    Dir.foreach(tmp_dir).each do |id|
       next if id == "." || id == ".."
-      next unless File.exist?("#{dir}/#{id}/analysis.json")
+      next unless File.exist?("#{tmp_dir}/#{id}/analysis.json")
 
-      expected = TwoFer::Analyze.(File.read("#{dir}/#{id}/two_fer.rb"))
-      actual = JSON.parse(File.read("#{dir}/#{id}/analysis.json"))
+      actual = TwoFer::Analyze.(File.read("#{tmp_dir}/#{id}/two_fer.rb"))
+      expected = JSON.parse(File.read("#{tmp_dir}/#{id}/analysis.json"))
 
-      assert_equal expected[:status].to_s, actual['status']
-      assert_equal expected[:comments], actual['comments']
+      assert_equal expected['status'].to_s, actual[:status]
+      assert_equal expected['comments'], actual[:comments]
     end
   end
 
@@ -22,7 +27,7 @@ class TwoFerTest < Minitest::Test
   # Test the module/class
   # ###
   def test_simple_class_passes
-    #skip
+    skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -36,7 +41,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_simple_module_passes
-    #skip
+    skip
     source = %q{
       module TwoFer
         def self.two_fer(name="you")
@@ -50,7 +55,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_simple_module_with_bookkeeping_passes
-    #skip
+    skip
     source = %q{
       module TwoFer
         def self.two_fer(name="you")
@@ -68,7 +73,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_different_module_name_fails
-    #skip
+    skip
     source = %q{
       module SomethingElse
         def self.two_fer(name="you")
@@ -86,7 +91,7 @@ class TwoFerTest < Minitest::Test
   # ###
 
   def test_different_method_value_fails
-    #skip
+    skip
     source = %q{
       module TwoFer
         def self.foobar(name="you")
@@ -100,7 +105,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_missing_param
-    #skip
+    skip
     source = %q{
       module TwoFer
         def self.two_fer
@@ -114,7 +119,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_missing_default_value_fails
-    #skip
+    skip
     source = %q{
       module TwoFer
         def self.two_fer(name)
@@ -128,7 +133,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_splat_fails
-    #skip
+    skip
     source = %q{
       module TwoFer
         def self.two_fer(*foos)
@@ -145,7 +150,7 @@ class TwoFerTest < Minitest::Test
   # Now let's guard against string building
   # ###
   def test_for_string_building
-    #skip
+    skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -159,7 +164,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_for_kernel_format
-    #skip
+    skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -173,7 +178,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_for_string_format
-    #skip
+    skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -186,8 +191,26 @@ class TwoFerTest < Minitest::Test
     assert_equal ["ruby.two_fer.avoid_string_format"], results[:comments]
   end
 
-  def test_conditional_with_nil
+  def test_conditional_as_boolean
     #skip
+    source = %q{
+      module TwoFer
+        def self.two_fer(name=nil)
+          if name
+            "One for you, one for me."
+          else
+            "One for #{name}, one for me."
+          end
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["ruby.two_fer.incorrect_default_param"], results[:comments]
+  end
+
+  def test_conditional_with_nil
+    skip
     source = %q{
       module TwoFer
         def self.two_fer(name=nil)
@@ -223,7 +246,6 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_conditional_with_string
-    #skip
     source = %q{
       module TwoFer
         def self.two_fer(name='dog')
@@ -240,8 +262,22 @@ class TwoFerTest < Minitest::Test
     assert_equal ["ruby.two_fer.incorrect_default_param"], results[:comments]
   end
 
-  def test_unknown_solution
+  def test_interpolated_ternary
     #skip
+    source = %q{
+      module TwoFer
+        def self.two_fer(name=nil)
+          "One for #{name ? name : 'you'}, one for me."
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["ruby.two_fer.incorrect_default_param"], results[:comments]
+  end
+
+  def test_unknown_solution
+    skip
     source = %q{
       module TwoFer
         def self.two_fer(name=nil)
@@ -274,12 +310,42 @@ class TwoFerTest < Minitest::Test
     end
   }].each.with_index do |source, idx|
     define_method "test_incorrect_indentation_#{idx}" do
-      ##skip
+      #skip
       results = TwoFer::Analyze.(source)
       assert_equal :disapprove_with_comment, results[:status]
       assert_equal ["ruby.general.incorrect_indentation"], results[:comments]
     end
   end
+
+  def test_explit_return
+    #skip
+    source = %q{
+      class TwoFer
+        def self.two_fer(name="you")
+          return "One for #{name}, one for me."
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["ruby.general.explicit_return"], results[:comments]
+  end
+
+  def test_reassigned_param
+    #skip
+    source = %q{
+      module TwoFer
+        def self.two_fer(name=nil)
+          name ||= "you"
+          "One for #{name}, one for me."
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    assert_equal :disapprove_with_comment, results[:status]
+    assert_equal ["ruby.two_fer.reassigning_param"], results[:comments]
+  end
+
 end
 
 # Explicit return

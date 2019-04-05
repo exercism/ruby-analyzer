@@ -4,9 +4,11 @@ module TwoFer
     no_module:               "ruby.general.no_target_module",
     no_method:               "ruby.general.no_target_method",
     incorrect_indentation:   "ruby.general.incorrect_indentation",
+    explicit_return:         "ruby.general.explicit_return",         #"The last line automatically gets returned"
     splat_args:              "ruby.two_fer.splat_args",              #Rather than using *%s, how about actually setting a parameter called 'name'?",
     missing_default_param:   "ruby.two_fer.missing_default_param",   #"There is no correct default param - the tests will fail",
     incorrect_default_param: "ruby.two_fer.incorrect_default_param", #You could set the default value to 'you' to avoid conditionals",
+    reassigning_param:       "ruby.two_fer.reassigning_param",    # You don't need to reassign - use the default param
     string_building:         "ruby.two_fer.avoid_string_building",   # "Rather than using string building, use interpolation",
     kernel_format:           "ruby.two_fer.avoid_kernel_format",     #"Rather than using the format method, use interpolation",
     string_format:           "ruby.two_fer.avoid_string_format",     #"Rather than using string's format/percentage method, use interpolation"
@@ -16,6 +18,8 @@ module TwoFer
     include Mandate
 
     def analyze!
+      #target_method.pry
+
       # Note that all "check_...!" methods exit this method if the solution
       # is approved or disapproved, so each step is only called if the
       # previous one has not resolved what to do.
@@ -45,6 +49,10 @@ module TwoFer
       # value. We want to check for conditionals and tell the user about the
       # default parameter if we see one.
       check_for_conditional_on_default_argument!
+
+      # Sometimes, rather than setting a variable, people reassign the input param e.g.
+      #   use name ||= "you"
+      check_for_reassigned_parameter!
 
       # Sometimes people specify the names (if name == "Alice" ...). If we
       # do this, suggest using string interpolation to make us of the
@@ -90,13 +98,33 @@ module TwoFer
       # statement using interpolation. Other solutions might be approved
       # but this is the only one that we would approve without comment.
 
+
       return unless default_argument_is_optimal?
       return unless one_line_solution?
-      return unless using_string_interpolation?
 
-      # If the interpolation has more than three components, then they've
+      if target_method.body.return_type?
+        loc = target_method.body.children.first
+        explicit_return = true
+      elsif target_method.body.dstr_type?
+        loc = target_method.body
+        explicit_return = false
+      else
+        # We're only expecting one of these two scenarios
+        return
+      end
+
+      # Return unless we have string interpolation
+      return unless loc.dstr_type?
+
+      # If the interpolation does not follow this pattern then the student has
       # done something weird, so let's get a mentor to look at it!
-      refer_to_mentor! unless string_interpolation_has_three_components?
+      refer_to_mentor! unless loc.children[0] == s(:str, "One for ") &&
+                              loc.children[1] == s(:begin, s(:lvar, first_parameter_name)) &&
+                              loc.children[2] == s(:str, ", one for me.")
+
+      # If we're got a correct solution but they've given an explicit
+      # return then let's warn them against that.
+      disapprove!(:explicit_return) if explicit_return
 
       approve_if_whitespace_is_sensible!
     end
@@ -108,6 +136,9 @@ module TwoFer
       return unless one_line_solution?
 
       loc = SA::Helpers.extract_first_line_from_method(target_method)
+
+      # Protect against explicit return
+      #loc = loc.children.first if loc.return_type?
 
       # In the case of:
       # "One for " + name + ", one for me."
@@ -139,28 +170,65 @@ module TwoFer
     end
 
     def check_for_conditional_on_default_argument!
-      loc = SA::Helpers.extract_first_line_from_method(target_method)
+      stmts = SA::Helpers.extract_nodes(:if, target_method)
 
-      # If we don't have a conditional, then let's get out of here.
-      #
-      # TODO: We might want to refactor this to extract a conditional from the
-      # method rather than insist on it being the first line.
-      return unless loc.type == :if
+      # If there are no statements then we can safely get out of here.
+      return if stmts.empty?
 
-      # Get the clause of the conditional (i.e. the bit after the "if" keyword)
-      conditional = SA::Helpers.extract_conditional_clause(loc)
+      # If there is more than one statement, then let's refer this to a mentor
+      refer_to_mentor! if stmts.size > 1
+
+      # Now we have the statement, let's also get the conditional
+      # clause (i.e. the bit after the "if" keyword)
+      if_statement = stmts.first
+      conditional = SA::Helpers.extract_conditional_clause(if_statement)
+
+      if SA::Helpers.lvar?(conditional, first_parameter_name)
+        # Let's warn about using a better default if they do `if name`
+        disapprove!(:incorrect_default_param)
+
+      elsif conditional.send_type? &&
+          SA::Helpers.lvar?(conditional.receiver, first_parameter_name)
+          conditional.first_argument == :nil?
+        # Let's warn about using a better default if they do `if name.nil?`
+        disapprove!(:incorrect_default_param)
 
       # Let's warn about using a better default if they `if name == nil`
-      if SA::Helpers.lvar?(conditional.receiver, :name) &&
+      elsif SA::Helpers.lvar?(conditional.receiver, first_parameter_name) &&
          conditional.first_argument == default_argument
+        disapprove!(:incorrect_default_param)
+
+      # Same thing but if they do it the other way round, i.e. `if nil == name`
+      elsif SA::Helpers.lvar?(conditional.first_argument, first_parameter_name) &&
+         conditional.receiver == default_argument
         disapprove!(:incorrect_default_param)
       end
 
-      # Same thing but if they do it the other way round, i.e. `if nil == name`
-      if conditional.receiver == default_argument &&
-         SA::Helpers.lvar?(conditional.first_argument, :name)
-        disapprove!(:incorrect_default_param)
+      # If we have an if without that does not do an expected comparison,
+      # let's refer this to a mentor and get out of here!
+      refer_to_mentor!
+    end
+
+    def check_for_reassigned_parameter!
+      assignments = SA::Helpers.extract_nodes(:or_asgn, target_method)
+
+      # If there are no statements then we can safely get out of here.
+      return if assignments.empty?
+
+      # If there is more than one statement, then let's refer this to a mentor
+      refer_to_mentor! if assignments.size > 1
+
+      # Now we what is being reassigned is the param and it's being rassigned to "you"
+      # let's warn the user
+      assignment = assignments.first
+      if assignment.children[0] == s(:lvasgn, first_parameter_name) &&
+         assignment.children[1] == s(:str, "you")
+        disapprove!(:reassigning_param)
       end
+
+      # If we have a reassignment that doesn't conform to this
+      # let's refer this to a mentor and get out of here!
+      refer_to_mentor!
     end
 
     # ###
@@ -172,15 +240,6 @@ module TwoFer
 
     def one_line_solution?
       target_method.body.line_count == 1
-    end
-
-    def using_string_interpolation?
-      target_method.body.dstr_type?
-    end
-
-    def string_interpolation_has_three_components?
-      #target_method.body.pry
-      target_method.body.children.size == 3
     end
 
     # REFACTOR: This could be refactored to strip blank

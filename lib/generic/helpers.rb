@@ -1,4 +1,10 @@
 module SA
+  module InlineHelpers
+    def s(type, *children)
+      Parser::AST::Node.new(type, children)
+    end
+  end
+
   module Helpers
     def self.extract_module_or_class(*args)
       ExtractModuleOrClass.(*args)
@@ -6,6 +12,10 @@ module SA
 
     def self.extract_module_method(*args)
       ExtractModuleMethod.(*args)
+    end
+
+    def self.extract_nodes(*args)
+      ExtractNodes.(*args)
     end
 
     def self.extract_first_line_from_method(method)

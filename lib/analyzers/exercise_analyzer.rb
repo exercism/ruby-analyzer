@@ -1,4 +1,5 @@
 class ExerciseAnalyzer
+  include SA::InlineHelpers
 
   # This is just flow-control for quickly exiting the
   # analysis. We probably don't want to do things this
