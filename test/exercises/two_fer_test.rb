@@ -4,7 +4,6 @@ require 'pry'
 class TwoFerTest < Minitest::Test
 
   def test_fixtures
-    skip
     fixtures_dir = File.expand_path("#{__FILE__}/../../fixtures/two-fer/")
     tmp_dir = File.expand_path("#{__FILE__}/../../../tmp/test/two-fer-fixtures/")
     FileUtils.rm_rf(tmp_dir)
@@ -18,7 +17,7 @@ class TwoFerTest < Minitest::Test
       actual = TwoFer::Analyze.(File.read("#{tmp_dir}/#{id}/two_fer.rb"))
       expected = JSON.parse(File.read("#{tmp_dir}/#{id}/analysis.json"))
 
-      assert_equal expected['status'].to_s, actual[:status]
+      assert_equal expected['status'].to_s, actual[:status].to_s
       assert_equal expected['comments'], actual[:comments]
     end
   end
@@ -27,7 +26,6 @@ class TwoFerTest < Minitest::Test
   # Test the module/class
   # ###
   def test_simple_class_passes
-    skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -41,7 +39,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_simple_module_passes
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer(name="you")
@@ -55,7 +53,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_simple_module_with_bookkeeping_passes
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer(name="you")
@@ -73,7 +71,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_different_module_name_fails
-    skip
+    #skip
     source = %q{
       module SomethingElse
         def self.two_fer(name="you")
@@ -91,7 +89,7 @@ class TwoFerTest < Minitest::Test
   # ###
 
   def test_different_method_value_fails
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.foobar(name="you")
@@ -105,7 +103,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_missing_param
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer
@@ -119,7 +117,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_missing_default_value_fails
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer(name)
@@ -133,7 +131,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_splat_fails
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer(*foos)
@@ -150,7 +148,7 @@ class TwoFerTest < Minitest::Test
   # Now let's guard against string building
   # ###
   def test_for_string_building
-    skip
+    #skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -164,7 +162,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_for_kernel_format
-    skip
+    #skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -178,7 +176,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_for_string_format
-    skip
+    #skip
     source = %q{
       class TwoFer
         def self.two_fer(name="you")
@@ -210,7 +208,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_conditional_with_nil
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer(name=nil)
@@ -246,6 +244,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_conditional_with_string
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer(name='dog')
@@ -277,7 +276,7 @@ class TwoFerTest < Minitest::Test
   end
 
   def test_unknown_solution
-    skip
+    #skip
     source = %q{
       module TwoFer
         def self.two_fer(name=nil)

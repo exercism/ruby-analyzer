@@ -21,8 +21,10 @@ require_relative "generic/extract_nodes"
 require_relative 'analyze_solution'
 
 require_relative 'analyzers/exercise_analyzer'
+require_relative "analyzers/solution_representation"
 EXERCISES.each do |exercise|
   require_relative "analyzers/#{exercise}/analyze"
+  require_relative "analyzers/#{exercise}/representation"
 end
 
 module Analyzer

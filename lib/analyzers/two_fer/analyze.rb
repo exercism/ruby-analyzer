@@ -16,6 +16,7 @@ module TwoFer
 
   class Analyze < ExerciseAnalyzer
     include Mandate
+    include SA::InlineHelpers
 
     def analyze!
       #target_method.pry
@@ -70,21 +71,21 @@ module TwoFer
     def check_structure!
       # First we check that there is a two-fer class or module
       # and that it contains a method called two-fer
-      disapprove!(:no_module) unless target_module
-      disapprove!(:no_method) unless target_method
+      disapprove!(:no_module) unless solution.has_target_module?
+      disapprove!(:no_method) unless solution.has_target_method?
     end
 
     def check_method_signature!
       # If there is no parameter or it doesn't have a default value,
       # then this solution won't pass the tests.
-      disapprove!(:missing_default_param) if parameters.size != 1
+      disapprove!(:missing_default_param) unless solution.has_one_parameter?
 
       # If they provide a splat, the tests can pass but we
       # should suggest they use a real parameter
-      disapprove!(:splat_args, first_parameter_name) if first_parameter.restarg_type?
+      disapprove!(:splat_args, solution.first_parameter_name) if solution.uses_splat_args?
 
       # If they don't provide an optional argument the tests will fail
-      disapprove!(:missing_default_param) unless first_parameter.optarg_type?
+      disapprove!(:missing_default_param) unless solution.first_paramater_has_default_value?
     end
 
     def check_for_optimal_solution!
@@ -98,71 +99,36 @@ module TwoFer
       # statement using interpolation. Other solutions might be approved
       # but this is the only one that we would approve without comment.
 
-
-      return unless default_argument_is_optimal?
-      return unless one_line_solution?
-
-      if target_method.body.return_type?
-        loc = target_method.body.children.first
-        explicit_return = true
-      elsif target_method.body.dstr_type?
-        loc = target_method.body
-        explicit_return = false
-      else
-        # We're only expecting one of these two scenarios
-        return
-      end
-
-      # Return unless we have string interpolation
-      return unless loc.dstr_type?
+      return unless solution.default_argument_is_optimal?
+      return unless solution.one_line_solution?
+      return unless solution.uses_string_interpolation?
 
       # If the interpolation does not follow this pattern then the student has
-      # done something weird, so let's get a mentor to look at it!
-      refer_to_mentor! unless loc.children[0] == s(:str, "One for ") &&
-                              loc.children[1] == s(:begin, s(:lvar, first_parameter_name)) &&
-                              loc.children[2] == s(:str, ", one for me.")
+      # done something weird, so let's get a mentor to look at it
+      refer_to_mentor! unless solution.string_interpolation_is_correct?
 
-      # If we're got a correct solution but they've given an explicit
-      # return then let's warn them against that.
-      disapprove!(:explicit_return) if explicit_return
-
-      approve_if_whitespace_is_sensible!
+      approve_if_implicit_return!
     end
 
     def check_for_correct_solution_without_string_interpolaton!
       # If we don't have a correct default argument or a one line
       # solution then let's just get out of here.
-      return unless default_argument_is_optimal?
-      return unless one_line_solution?
+      return unless solution.default_argument_is_optimal?
+      return unless solution.one_line_solution?
 
-      loc = SA::Helpers.extract_first_line_from_method(target_method)
-
-      # Protect against explicit return
-      #loc = loc.children.first if loc.return_type?
+      loc = SA::Helpers.extract_first_line_from_method(solution.target_method)
 
       # In the case of:
       # "One for " + name + ", one for me."
-      if loc.method_name == :+ &&
-         loc.arguments[0].type == :str
-        approve_if_whitespace_is_sensible!(:string_building)
-      end
+      approve_if_implicit_return!(:string_building) if solution.uses_string_building?
 
       # In the case of:
       # format("One for %s, one for me.", name)
-      if loc.method_name == :format &&
-         loc.receiver == nil &&
-         loc.arguments[0].type == :str &&
-         loc.arguments[1].type == :lvar
-        approve_if_whitespace_is_sensible!(:kernel_format)
-      end
+      approve_if_implicit_return!(:kernel_format) if solution.uses_kernel_format?
 
       # In the case of:
       # "One for %s, one for me." % name
-      if loc.method_name == :% &&
-         loc.receiver.type == :str &&
-         loc.arguments[0].type == :lvar
-        approve_if_whitespace_is_sensible!(:string_format)
-      end
+      approve_if_implicit_return!(:string_format) if solution.uses_string_format?
 
       # If we have a one-line method that passes the tests, then it's not
       # something we've planned for, so let's refer it to a mentor
@@ -170,39 +136,15 @@ module TwoFer
     end
 
     def check_for_conditional_on_default_argument!
-      stmts = SA::Helpers.extract_nodes(:if, target_method)
-
-      # If there are no statements then we can safely get out of here.
-      return if stmts.empty?
+      # If there are no if statements then we can safely get out of here.
+      return unless solution.has_any_if_statements?
 
       # If there is more than one statement, then let's refer this to a mentor
-      refer_to_mentor! if stmts.size > 1
+      refer_to_mentor! unless solution.has_single_if_statement?
 
-      # Now we have the statement, let's also get the conditional
-      # clause (i.e. the bit after the "if" keyword)
-      if_statement = stmts.first
-      conditional = SA::Helpers.extract_conditional_clause(if_statement)
-
-      if SA::Helpers.lvar?(conditional, first_parameter_name)
-        # Let's warn about using a better default if they do `if name`
-        disapprove!(:incorrect_default_param)
-
-      elsif conditional.send_type? &&
-          SA::Helpers.lvar?(conditional.receiver, first_parameter_name)
-          conditional.first_argument == :nil?
-        # Let's warn about using a better default if they do `if name.nil?`
-        disapprove!(:incorrect_default_param)
-
-      # Let's warn about using a better default if they `if name == nil`
-      elsif SA::Helpers.lvar?(conditional.receiver, first_parameter_name) &&
-         conditional.first_argument == default_argument
-        disapprove!(:incorrect_default_param)
-
-      # Same thing but if they do it the other way round, i.e. `if nil == name`
-      elsif SA::Helpers.lvar?(conditional.first_argument, first_parameter_name) &&
-         conditional.receiver == default_argument
-        disapprove!(:incorrect_default_param)
-      end
+      # If the person checks the default paramter, then we can always tell them
+      # just to set this to a more sensible value (ie "you")
+      disapprove!(:incorrect_default_param) if solution.uses_default_param_in_if_statement?
 
       # If we have an if without that does not do an expected comparison,
       # let's refer this to a mentor and get out of here!
@@ -210,92 +152,19 @@ module TwoFer
     end
 
     def check_for_reassigned_parameter!
-      assignments = SA::Helpers.extract_nodes(:or_asgn, target_method)
-
-      # If there are no statements then we can safely get out of here.
-      return if assignments.empty?
+      # If there are no reassignments then we can safely get out of here.
+      return unless solution.reassigns_parameter?
 
       # If there is more than one statement, then let's refer this to a mentor
-      refer_to_mentor! if assignments.size > 1
+      refer_to_mentor! if solution.reassigns_parameter_multiple_times?
 
-      # Now we what is being reassigned is the param and it's being rassigned to "you"
-      # let's warn the user
-      assignment = assignments.first
-      if assignment.children[0] == s(:lvasgn, first_parameter_name) &&
-         assignment.children[1] == s(:str, "you")
-        disapprove!(:reassigning_param)
-      end
+      # If the solution reassigns the input paramater to "you" then we can warn
+      # about reassigning the parameter and get out of here
+      disapprove!(:reassigning_param) if solution.reassigns_parameter_to_you?
 
       # If we have a reassignment that doesn't conform to this
       # let's refer this to a mentor and get out of here!
       refer_to_mentor!
-    end
-
-    # ###
-    # Analysis helpers
-    # ###
-    def default_argument_is_optimal?
-      default_argument_value == "you"
-    end
-
-    def one_line_solution?
-      target_method.body.line_count == 1
-    end
-
-    # REFACTOR: This could be refactored to strip blank
-    # lines and then use each_cons(2).
-    def indentation_is_sensible?
-      previous_line = nil
-      code_to_analyze.lines.each do |line|
-        # If the previous line or this line is
-        # just a whitespace line, don't consider it
-        # when checking for indentation
-        unless previous_line == nil ||
-               previous_line =~ /^\s*\n*$/ ||
-               line =~ /^\s*\n*$/
-
-          previous_line_lspace = previous_line[/^ */].size
-          line_lspace = line[/^ */].size
-
-          return false if (previous_line_lspace - line_lspace).abs > 2
-        end
-
-        previous_line = line
-      end
-
-      true
-    end
-
-    memoize
-    def target_module
-      SA::Helpers.extract_module_or_class(root_node, "TwoFer")
-    end
-
-    memoize
-    def target_method
-      SA::Helpers.extract_module_method(target_module, "two_fer")
-    end
-
-    memoize
-    def parameters
-      target_method.arguments
-    end
-
-    memoize
-    def first_parameter
-      parameters.first
-    end
-
-    def first_parameter_name
-      first_parameter.children[0]
-    end
-
-    def default_argument
-      first_parameter.children[1]
-    end
-
-    def default_argument_value
-      default_argument.children[0]
     end
 
     # ###
@@ -304,8 +173,17 @@ module TwoFer
     # These are totally generic to all exercises and
     # can probably be extracted to parent
     # ###
+
+    def approve_if_implicit_return!(msg = nil)
+      # If we're got a correct solution but they've given an explicit
+      # return then let's warn them against that.
+      disapprove!(:explicit_return) if solution.has_explicit_return?
+
+      approve_if_whitespace_is_sensible!(msg)
+    end
+
     def approve_if_whitespace_is_sensible!(msg = nil)
-      if indentation_is_sensible?
+      if solution.indentation_is_sensible?
         if msg
           self.status = :approve_with_comment
           self.comments << MESSAGES[msg]
