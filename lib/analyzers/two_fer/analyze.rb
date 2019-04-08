@@ -35,14 +35,12 @@ module TwoFer
 
       # There is one optimal solution for two-fer which needs
       # no comments and can just be approved. If we have it, then
-      # let's just acknowledge it and get out of here.
-      check_for_optimal_solution!
-
-      # We often see solutions that are correct but use different
-      # string concatenation options (e.g. string#+, String.format, etc)
-      # We'll approve these but want to leave a comment that introduces
-      # them to string interpolation in case they don't know about it.
-      check_for_correct_solution_without_string_interpolaton!
+      # let's just acknowledge it and get out of here. We also often see
+      # solutions that are correct but use different # string concatenation
+      # options (e.g. string#+, String.format, etc). We'll approve these but
+      # want to leave a comment that introduces them to string interpolation
+      # in case they don't know about it.
+      check_for_single_line_solution!
 
       # The most common error in twofer is people using conditionals
       # to check where the value passed in is nil, rather than using a default
@@ -87,7 +85,10 @@ module TwoFer
       disapprove!(:missing_default_param) unless solution.first_paramater_has_default_value?
     end
 
-    def check_for_optimal_solution!
+    def check_for_single_line_solution!
+      return unless solution.default_argument_is_optimal?
+      return unless solution.one_line_solution?
+
       # The optional solution looks like this:
       #
       # def self.two_fer(name="you")
@@ -97,23 +98,13 @@ module TwoFer
       # The default argument must be 'you', and it must just be a single
       # statement using interpolation. Other solutions might be approved
       # but this is the only one that we would approve without comment.
-
-      return unless solution.default_argument_is_optimal?
-      return unless solution.one_line_solution?
-      return unless solution.uses_string_interpolation?
-
-      # If the interpolation does not follow this pattern then the student has
-      # done something weird, so let's get a mentor to look at it
-      refer_to_mentor! unless solution.string_interpolation_is_correct?
-
-      approve_if_implicit_return!
-    end
-
-    def check_for_correct_solution_without_string_interpolaton!
-      # If we don't have a correct default argument or a one line
-      # solution then let's just get out of here.
-      return unless solution.default_argument_is_optimal?
-      return unless solution.one_line_solution?
+      if solution.uses_string_interpolation?
+        if solution.string_interpolation_is_correct?
+          approve_if_implicit_return!
+        else
+          refer_to_mentor!
+        end
+      end
 
       # In the case of:
       # "One for " + name + ", one for me."
