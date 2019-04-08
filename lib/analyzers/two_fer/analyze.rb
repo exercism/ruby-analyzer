@@ -16,7 +16,6 @@ module TwoFer
 
   class Analyze < ExerciseAnalyzer
     include Mandate
-    include SA::InlineHelpers
 
     def analyze!
       #target_method.pry
@@ -52,7 +51,7 @@ module TwoFer
       check_for_conditional_on_default_argument!
 
       # Sometimes, rather than setting a variable, people reassign the input param e.g.
-      #   use name ||= "you"
+      #   name ||= "you"
       check_for_reassigned_parameter!
 
       # Sometimes people specify the names (if name == "Alice" ...). If we
@@ -115,8 +114,6 @@ module TwoFer
       # solution then let's just get out of here.
       return unless solution.default_argument_is_optimal?
       return unless solution.one_line_solution?
-
-      loc = SA::Helpers.extract_first_line_from_method(solution.target_method)
 
       # In the case of:
       # "One for " + name + ", one for me."
