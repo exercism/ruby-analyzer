@@ -75,18 +75,21 @@ module TwoFer
       if_statement = if_statements.first
       conditional = SA::Helpers.extract_conditional_clause(if_statement)
 
+      # if name
       return true if SA::Helpers.lvar?(conditional, first_parameter_name)
 
+      # if name.nil?
       return true if conditional.send_type? &&
-                     SA::Helpers.lvar?(conditional.receiver, first_parameter_name) &&
-                     conditional.first_argument == :nil?
+                     SA::Helpers.lvar?(conditional.receiver, first_parameter_name)
 
+      # if name == "nil"
       return true if SA::Helpers.lvar?(conditional.receiver, first_parameter_name) &&
                      conditional.first_argument == default_argument
 
-      # Same thing but if they do it the other way round, i.e. `if nil == name`
+      # if nil == name
       return true if SA::Helpers.lvar?(conditional.first_argument, first_parameter_name) &&
                      conditional.receiver == default_argument
+
 
       return false
     end

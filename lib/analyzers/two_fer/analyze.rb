@@ -4,14 +4,14 @@ module TwoFer
     no_module:               "ruby.general.no_target_module",
     no_method:               "ruby.general.no_target_method",
     incorrect_indentation:   "ruby.general.incorrect_indentation",
-    explicit_return:         "ruby.general.explicit_return",         #"The last line automatically gets returned"
-    splat_args:              "ruby.two_fer.splat_args",              #Rather than using *%s, how about actually setting a parameter called 'name'?",
-    missing_default_param:   "ruby.two_fer.missing_default_param",   #"There is no correct default param - the tests will fail",
-    incorrect_default_param: "ruby.two_fer.incorrect_default_param", #You could set the default value to 'you' to avoid conditionals",
-    reassigning_param:       "ruby.two_fer.reassigning_param",    # You don't need to reassign - use the default param
-    string_building:         "ruby.two_fer.avoid_string_building",   # "Rather than using string building, use interpolation",
-    kernel_format:           "ruby.two_fer.avoid_kernel_format",     #"Rather than using the format method, use interpolation",
-    string_format:           "ruby.two_fer.avoid_string_format",     #"Rather than using string's format/percentage method, use interpolation"
+    explicit_return:         "ruby.general.explicit_return",         # "The last line automatically gets returned"
+    splat_args:              "ruby.two_fer.splat_args",              # "Rather than using *%s, how about actually setting a parameter called 'name'?"
+    missing_default_param:   "ruby.two_fer.missing_default_param",   # "There is no correct default param - the tests will fail"
+    incorrect_default_param: "ruby.two_fer.incorrect_default_param", # "You could set the default value to 'you' to avoid conditionals"
+    reassigning_param:       "ruby.two_fer.reassigning_param",       # "You don't need to reassign - use the default param"
+    string_building:         "ruby.two_fer.avoid_string_building",   # "Rather than using string building, use interpolation"
+    kernel_format:           "ruby.two_fer.avoid_kernel_format",     # "Rather than using the format method, use interpolation"
+    string_format:           "ruby.two_fer.avoid_string_format",     # "Rather than using string's format/percentage method, use interpolation"
   }
 
   class Analyze < ExerciseAnalyzer

@@ -5,11 +5,12 @@ require 'pry'
 
 source = %q{
 class TwoFer
-    def self.two_fer(name = "you")
-        return ("One for " + name + ", one for me.")
+    def self.two_fer(name = nil)
+       name = "you" if name.nil?
+        
+       "One for #{name}, one for me."        
     end
 end
-
 }
 
 puts "\n\n\n\n"

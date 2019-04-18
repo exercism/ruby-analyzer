@@ -38,7 +38,18 @@ module SA
     end
 
     def self.extract_conditional_clause(loc)
-      loc.children[0]
+      conditional = loc.children[0]
+
+      if conditional.begin_type?
+        if conditional.children.size == 1
+          conditional.children.first
+        else
+          conditional.pry
+          raise "Complex conditional clause"
+        end
+      else
+        conditional
+      end
     end
   end
 end
