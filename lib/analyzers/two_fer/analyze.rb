@@ -17,44 +17,17 @@ module TwoFer
   class Analyze < ExerciseAnalyzer
     include Mandate
 
+    # Note that all "check_...!" methods exit this method if the solution
+    # is approved or disapproved, so each step is only called if the
+    # previous one has not resolved what to do.
+
     def analyze!
       #target_method.pry
-
-      # Note that all "check_...!" methods exit this method if the solution
-      # is approved or disapproved, so each step is only called if the
-      # previous one has not resolved what to do.
-
-      # Firstly we want to check that the structure of this
-      # solution is correct and that there is nothing structural
-      # stopping it from passing the tests
       check_structure!
-
-      # Now we want to ensure that the method signature
-      # is sane and that it has valid arguments
       check_method_signature!
-
-      # There is one optimal solution for two-fer which needs
-      # no comments and can just be approved. If we have it, then
-      # let's just acknowledge it and get out of here. We also often see
-      # solutions that are correct but use different # string concatenation
-      # options (e.g. string#+, String.format, etc). We'll approve these but
-      # want to leave a comment that introduces them to string interpolation
-      # in case they don't know about it.
       check_for_single_line_solution!
-
-      # The most common error in twofer is people using conditionals
-      # to check where the value passed in is nil, rather than using a default
-      # value. We want to check for conditionals and tell the user about the
-      # default parameter if we see one.
       check_for_conditional_on_default_argument!
-
-      # Sometimes, rather than setting a variable, people reassign the input param e.g.
-      #   name ||= "you"
       check_for_reassigned_parameter!
-
-      # Sometimes people specify the names (if name == "Alice" ...). If we
-      # do this, suggest using string interpolation to make us of the
-      # parameter, rather than using a conditional on it.
       # check_for_names!
 
       # We don't have any idea about this solution, so let's refer it to a
@@ -65,39 +38,43 @@ module TwoFer
     # ###
     # Analysis functions
     # ###
+
+    # Firstly we want to check that the structure of this
+    # solution is correct and that there is nothing structural
+    # stopping it from passing the tests
     def check_structure!
-      # First we check that there is a two-fer class or module
-      # and that it contains a method called two-fer
       disapprove!(:no_module) unless solution.has_target_module?
       disapprove!(:no_method) unless solution.has_target_method?
     end
 
+    # Then we we want to ensure that the method signature
+    # is sane and that it has valid arguments
     def check_method_signature!
-      # If there is no parameter or it doesn't have a default value,
-      # then this solution won't pass the tests.
       disapprove!(:missing_default_param) unless solution.has_one_parameter?
-
-      # If they provide a splat, the tests can pass but we
-      # should suggest they use a real parameter
       disapprove!(:splat_args, solution.first_parameter_name) if solution.uses_splat_args?
-
-      # If they don't provide an optional argument the tests will fail
       disapprove!(:missing_default_param) unless solution.first_paramater_has_default_value?
     end
 
+    # There is one optimal solution for two-fer which needs
+    # no comments and can just be approved. If we have it, then
+    # let's just acknowledge it and get out of here. We also often see
+    # solutions that are correct but use different # string concatenation
+    # options (e.g. string#+, String.format, etc). We'll approve these but
+    # want to leave a comment that introduces them to string interpolation
+    # in case they don't know about it.
+    # The optional solution looks like this:
+    #
+    # def self.two_fer(name="you")
+    #   "One for #{name}, one for me."
+    # end
+    # 
+    # The default argument must be 'you', and it must just be a single
+    # statement using interpolation. Other solutions might be approved
+    # but this is the only one that we would approve without comment.
     def check_for_single_line_solution!
       return unless solution.default_argument_is_optimal?
       return unless solution.one_line_solution?
 
-      # The optional solution looks like this:
-      #
-      # def self.two_fer(name="you")
-      #   "One for #{name}, one for me."
-      # end
-      # 
-      # The default argument must be 'you', and it must just be a single
-      # statement using interpolation. Other solutions might be approved
-      # but this is the only one that we would approve without comment.
       if solution.uses_string_interpolation?
         if solution.string_interpolation_is_correct?
           approve_if_implicit_return!
@@ -106,15 +83,12 @@ module TwoFer
         end
       end
 
-      # In the case of:
       # "One for " + name + ", one for me."
       approve_if_implicit_return!(:string_building) if solution.uses_string_building?
 
-      # In the case of:
       # format("One for %s, one for me.", name)
       approve_if_implicit_return!(:kernel_format) if solution.uses_kernel_format?
 
-      # In the case of:
       # "One for %s, one for me." % name
       approve_if_implicit_return!(:string_format) if solution.uses_string_format?
 
@@ -123,8 +97,11 @@ module TwoFer
       return refer_to_mentor!
     end
 
+    # The most common error in twofer is people using conditionals
+    # to check where the value passed in is nil, rather than using a default
+    # value. We want to check for conditionals and tell the user about the
+    # default parameter if we see one.
     def check_for_conditional_on_default_argument!
-      # If there are no if statements then we can safely get out of here.
       return unless solution.has_any_if_statements?
 
       # If there is more than one statement, then let's refer this to a mentor
@@ -139,8 +116,9 @@ module TwoFer
       refer_to_mentor!
     end
 
+    # Sometimes, rather than setting a variable, people reassign the input param e.g.
+    #   name ||= "you"
     def check_for_reassigned_parameter!
-      # If there are no reassignments then we can safely get out of here.
       return unless solution.reassigns_parameter?
 
       # If there is more than one statement, then let's refer this to a mentor
@@ -153,6 +131,12 @@ module TwoFer
       # If we have a reassignment that doesn't conform to this
       # let's refer this to a mentor and get out of here!
       refer_to_mentor!
+    end
+
+    # Sometimes people specify the names (if name == "Alice" ...). If we
+    # do this, suggest using string interpolation to make us of the
+    # parameter, rather than using a conditional on it.
+    def check_for_names!
     end
 
     # ###
