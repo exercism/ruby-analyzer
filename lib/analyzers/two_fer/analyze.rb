@@ -5,13 +5,13 @@ module TwoFer
     no_method:               "ruby.general.no_target_method",
     incorrect_indentation:   "ruby.general.incorrect_indentation",
     explicit_return:         "ruby.general.explicit_return",         # "The last line automatically gets returned"
-    splat_args:              "ruby.two_fer.splat_args",              # "Rather than using *%s, how about actually setting a parameter called 'name'?"
-    missing_default_param:   "ruby.two_fer.missing_default_param",   # "There is no correct default param - the tests will fail"
-    incorrect_default_param: "ruby.two_fer.incorrect_default_param", # "You could set the default value to 'you' to avoid conditionals"
-    reassigning_param:       "ruby.two_fer.reassigning_param",       # "You don't need to reassign - use the default param"
-    string_building:         "ruby.two_fer.avoid_string_building",   # "Rather than using string building, use interpolation"
-    kernel_format:           "ruby.two_fer.avoid_kernel_format",     # "Rather than using the format method, use interpolation"
-    string_format:           "ruby.two_fer.avoid_string_format",     # "Rather than using string's format/percentage method, use interpolation"
+    splat_args:              "ruby.two-fer.splat_args",              # "Rather than using *%s, how about actually setting a parameter called 'name'?"
+    missing_default_param:   "ruby.two-fer.missing_default_param",   # "There is no correct default param - the tests will fail"
+    incorrect_default_param: "ruby.two-fer.incorrect_default_param", # "You could set the default value to 'you' to avoid conditionals"
+    reassigning_param:       "ruby.two-fer.reassigning_param",       # "You don't need to reassign - use the default param"
+    string_building:         "ruby.two-fer.avoid_string_building",   # "Rather than using string building, use interpolation"
+    kernel_format:           "ruby.two-fer.avoid_kernel_format",     # "Rather than using the format method, use interpolation"
+    string_format:           "ruby.two-fer.avoid_string_format",     # "Rather than using string's format/percentage method, use interpolation"
   }
 
   class Analyze < ExerciseAnalyzer
@@ -84,13 +84,13 @@ module TwoFer
       end
 
       # "One for " + name + ", one for me."
-      approve_if_implicit_return!(:string_building) if solution.uses_string_building?
+      approve_if_implicit_return!(:string_building, {name_variable: solution.first_parameter_name}) if solution.uses_string_building?
 
       # format("One for %s, one for me.", name)
-      approve_if_implicit_return!(:kernel_format) if solution.uses_kernel_format?
+      approve_if_implicit_return!(:kernel_format, {name_variable: solution.first_parameter_name}) if solution.uses_kernel_format?
 
       # "One for %s, one for me." % name
-      approve_if_implicit_return!(:string_format) if solution.uses_string_format?
+      approve_if_implicit_return!(:string_format, {name_variable: solution.first_parameter_name}) if solution.uses_string_format?
 
       # If we have a one-line method that passes the tests, then it's not
       # something we've planned for, so let's refer it to a mentor
@@ -146,22 +146,19 @@ module TwoFer
     # can probably be extracted to parent
     # ###
 
-    def approve_if_implicit_return!(msg = nil)
+    def approve_if_implicit_return!(msg = nil, params = {})
       # If we're got a correct solution but they've given an explicit
       # return then let's warn them against that.
       disapprove!(:explicit_return) if solution.has_explicit_return?
 
-      approve_if_whitespace_is_sensible!(msg)
+      approve_if_whitespace_is_sensible!(msg, params)
     end
 
-    def approve_if_whitespace_is_sensible!(msg = nil)
+    def approve_if_whitespace_is_sensible!(msg = nil, params = {})
       if solution.indentation_is_sensible?
-        if msg
-          self.status = :approve_with_comment
-          self.comments << MESSAGES[msg]
-        else
-          self.status = :approve_as_optimal
-        end
+        self.comments << {comment: MESSAGES[msg], params: params} if msg
+        self.status = :approve
+
         raise FinishedFlowControlException
 
       else
@@ -176,7 +173,7 @@ module TwoFer
     end
 
     def disapprove!(msg, *msg_args)
-      self.status = :disapprove_with_comment
+      self.status = :disapprove
       if msg_args.length > 0
         self.comments << [MESSAGES[msg], *msg_args]
       else
