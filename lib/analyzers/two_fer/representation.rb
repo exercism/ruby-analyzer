@@ -37,7 +37,7 @@ module TwoFer
     end
 
     # "One for " + name + ", one for me."
-    def uses_string_building?
+    def uses_string_concatenation?
       loc = single_line_body
 
       loc.method_name == :+ &&

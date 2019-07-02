@@ -149,7 +149,7 @@ class TwoFerTest < Minitest::Test
   # ### 
   # Now let's guard against string building
   # ###
-  def test_for_string_building
+  def test_for_string_concatenation
     #skip
     source = %q{
       class TwoFer
@@ -160,7 +160,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [{comment: "ruby.two-fer.avoid_string_building", params: {name_variable: :name}}], results[:comments]
+    assert_equal [{comment: "ruby.two-fer.avoid_string_concatenation", params: {name_variable: :name}}], results[:comments]
   end
 
   def test_for_kernel_format

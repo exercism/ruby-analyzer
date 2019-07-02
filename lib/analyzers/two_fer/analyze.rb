@@ -9,7 +9,7 @@ module TwoFer
     missing_default_param:   "ruby.two-fer.missing_default_param",   # "There is no correct default param - the tests will fail"
     incorrect_default_param: "ruby.two-fer.incorrect_default_param", # "You could set the default value to 'you' to avoid conditionals"
     reassigning_param:       "ruby.two-fer.reassigning_param",       # "You don't need to reassign - use the default param"
-    string_building:         "ruby.two-fer.avoid_string_building",   # "Rather than using string building, use interpolation"
+    string_concatenation:         "ruby.two-fer.avoid_string_concatenation",   # "Rather than using string building, use interpolation"
     kernel_format:           "ruby.two-fer.avoid_kernel_format",     # "Rather than using the format method, use interpolation"
     string_format:           "ruby.two-fer.avoid_string_format",     # "Rather than using string's format/percentage method, use interpolation"
   }
@@ -84,7 +84,7 @@ module TwoFer
       end
 
       # "One for " + name + ", one for me."
-      approve_if_implicit_return!(:string_building, {name_variable: solution.first_parameter_name}) if solution.uses_string_building?
+      approve_if_implicit_return!(:string_concatenation, {name_variable: solution.first_parameter_name}) if solution.uses_string_concatenation?
 
       # format("One for %s, one for me.", name)
       approve_if_implicit_return!(:kernel_format, {name_variable: solution.first_parameter_name}) if solution.uses_kernel_format?
