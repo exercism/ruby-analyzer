@@ -9,9 +9,9 @@ module TwoFer
     missing_default_param:   "ruby.two-fer.missing_default_param",   # "There is no correct default param - the tests will fail"
     incorrect_default_param: "ruby.two-fer.incorrect_default_param", # "You could set the default value to 'you' to avoid conditionals"
     reassigning_param:       "ruby.two-fer.reassigning_param",       # "You don't need to reassign - use the default param"
-    string_concatenation:         "ruby.two-fer.avoid_string_concatenation",   # "Rather than using string building, use interpolation"
-    kernel_format:           "ruby.two-fer.avoid_kernel_format",     # "Rather than using the format method, use interpolation"
-    string_format:           "ruby.two-fer.avoid_string_format",     # "Rather than using string's format/percentage method, use interpolation"
+    string_concatenation:    "ruby.two-fer.string_concatenation",    # "Rather than using string building, use interpolation"
+    kernel_format:           "ruby.two-fer.kernel_format",           # "Rather than using the format method, use interpolation"
+    string_format:           "ruby.two-fer.string_format",           # "Rather than using string's format/percentage method, use interpolation"
   }
 
   class Analyze < ExerciseAnalyzer
