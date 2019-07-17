@@ -37,7 +37,6 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
   end
 
   def test_simple_module_passes
@@ -51,7 +50,6 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
   end
 
   def test_simple_module_with_bookkeeping_passes
@@ -69,7 +67,6 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
   end
 
   def test_different_module_name_fails
@@ -161,6 +158,19 @@ class TwoFerTest < Minitest::Test
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
     assert_equal [{comment: "ruby.two-fer.string_concatenation", params: {name_variable: :name}}], results[:comments]
+  end
+
+  def test_string_interpolation_passes
+    source = %q{
+      class TwoFer
+        def self.two_fer(name="you")
+          "One for #{name}, one for me."
+        end
+      end
+    }
+    results = TwoFer::Analyze.(source)
+    assert_equal :approve, results[:status]
+    assert_equal [{comment: "ruby.two-fer.string_interpolation", params: {name_variable: :name}}], results[:comments]
   end
 
   def test_for_kernel_format

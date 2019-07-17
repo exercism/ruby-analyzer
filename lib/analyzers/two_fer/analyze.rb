@@ -9,6 +9,7 @@ module TwoFer
     missing_default_param:   "ruby.two-fer.missing_default_param",   # "There is no correct default param - the tests will fail"
     incorrect_default_param: "ruby.two-fer.incorrect_default_param", # "You could set the default value to 'you' to avoid conditionals"
     reassigning_param:       "ruby.two-fer.reassigning_param",       # "You don't need to reassign - use the default param"
+    string_interpolation:    "ruby.two-fer.string_interpolation",    # "String interpolation is a good way to build strings, here are some other options to explore"
     string_concatenation:    "ruby.two-fer.string_concatenation",    # "Rather than using string building, use interpolation"
     kernel_format:           "ruby.two-fer.kernel_format",           # "Rather than using the format method, use interpolation"
     string_format:           "ruby.two-fer.string_format",           # "Rather than using string's format/percentage method, use interpolation"
@@ -77,7 +78,7 @@ module TwoFer
 
       if solution.uses_string_interpolation?
         if solution.string_interpolation_is_correct?
-          approve_if_implicit_return!
+          approve_if_implicit_return!(:string_interpolation, {name_variable: solution.first_parameter_name})
         else
           refer_to_mentor!
         end
