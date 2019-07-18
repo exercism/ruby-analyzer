@@ -16,6 +16,18 @@ module Acronym
                               :upcase)
     end
 
+    def uses_scan?
+      target_method.body == s(:send,
+                              s(:send,
+                                s(:send,
+                                  s(:lvar, :words),
+                                  :scan,
+                                  s(:regexp, s(:str, "\\b[[:alpha:]]"), s(:regopt))
+                                ),
+                                :join),
+                              :upcase)
+    end
+
     private
     memoize
     def target_method

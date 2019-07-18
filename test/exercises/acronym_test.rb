@@ -14,4 +14,17 @@ class AcronymTest < Minitest::Test
     assert_equal :approve, results[:status]
     assert_equal [], results[:comments]
   end
+
+  def test_scan_passes
+    source = %q{
+      class Acronym
+        def self.abbreviate(words)
+          words.scan(/\b[[:alpha:]]/).join.upcase
+        end
+      end
+    }
+    results = Acronym::Analyze.(source)
+    assert_equal :approve, results[:status]
+    assert_equal [], results[:comments]
+  end
 end
