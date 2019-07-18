@@ -39,6 +39,34 @@ module Acronym
         all? { |node, i| node_matches?(node, matchers[i]) }
     end
 
+    def uses_split?
+      matchers = [
+        {
+          method_name: :upcase,
+        },
+        {
+          method_name: :join,
+          chained?: true
+        },
+        {
+          method_name: :map,
+          chained?: true,
+          arguments: [{ to_ast: s(:block_pass, s(:sym, :chr)) }]
+        },
+        {
+          method_name: :split,
+          receiver: s(:lvar, :words),
+          arguments: [{ type: :regexp }]
+        }
+      ]
+
+      target_method.
+        body.
+        each_node(:send).
+        with_index.
+        all? { |node, i| node_matches?(node, matchers[i]) }
+    end
+
     private
     memoize
     def target_method

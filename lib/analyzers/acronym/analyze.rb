@@ -3,7 +3,7 @@ module Acronym
     include Mandate
 
     def analyze!
-      if solution.uses_method_chain? || solution.uses_scan?
+      if solution.uses_method_chain? || solution.uses_scan? || solution.uses_split?
         self.status = :approve
 
         raise FinishedFlowControlException
