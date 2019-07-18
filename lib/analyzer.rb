@@ -1,5 +1,6 @@
 EXERCISES = %w{
   two_fer
+  acronym
 }
 
 FILENAMES = {
