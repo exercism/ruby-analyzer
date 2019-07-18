@@ -7,18 +7,15 @@ module Acronym
     }
 
     def analyze!
-      approve! if approve_without_comment?
-
+      approve! if solution.uses_method_chain?
+      approve! if solution.uses_scan?
+      approve! if solution.uses_split?
       approve!(:use_shorthand_block_syntax) if solution.uses_method_chain_with_block?
 
       refer_to_mentor!
     end
 
     private
-
-    def approve_without_comment?
-      solution.uses_method_chain? || solution.uses_scan? || solution.uses_split?
-    end
 
     def approve!(msg = nil)
       self.comments << MESSAGES[msg] if msg
