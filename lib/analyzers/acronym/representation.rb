@@ -42,8 +42,7 @@ module Acronym
           type: :block,
           method_name: :map,
           chained?: true,
-          arguments: s(:args, s(:arg, :word)),
-          body: s(:send, s(:lvar, :word), :chr)
+          arguments: s(:args, s(:arg, :word))
         },
         {
           method_name: :map,
@@ -57,6 +56,10 @@ module Acronym
           receiver: s(:lvar, :words),
           chained?: true,
           arguments: [{ to_ast: s(:str, "-") }, { to_ast: s(:str, " ") }]
+        },
+        {
+          method_name: :chr,
+          receiver: s(:lvar, :word)
         }
       ]
 
@@ -127,7 +130,7 @@ module Acronym
 
     def node_matches?(node, matcher)
       matcher.
-        map do |criteria|
+        all? do |criteria|
           key, expected_value = *criteria
           criteria_value = node.send(key)
 
@@ -139,8 +142,7 @@ module Acronym
           else
             criteria_value == expected_value
           end
-        end.
-        all?
+        end
     end
   end
 end

@@ -41,6 +41,30 @@ class AcronymTest < Minitest::Test
     assert_equal [], results[:comments]
   end
 
+  def test_refers_to_mentor_with_method_not_matching
+    source = %q{
+      class Acronym
+        def self.abbreviate(words)
+          test.words.tr('-', ' ').split.map(&:chr).join.upcase
+        end
+      end
+    }
+    results = Acronym::Analyze.(source)
+    assert_equal :refer_to_mentor, results[:status]
+  end
+
+  def test_refers_to_mentor_with_random_method_body
+    source = %q{
+      class Acronym
+        def self.abbreviate(words)
+          anything_here.123.456.test_method
+        end
+      end
+    }
+    results = Acronym::Analyze.(source)
+    assert_equal :refer_to_mentor, results[:status]
+  end
+
   def test_scan_with_any_regex_passes
     source = %q{
       class Acronym
