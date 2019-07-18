@@ -15,6 +15,19 @@ class AcronymTest < Minitest::Test
     assert_equal [], results[:comments]
   end
 
+  def test_module_method_passes
+    source = %q{
+      module Acronym
+        def self.abbreviate(words)
+          words.tr('-', ' ').split.map(&:chr).join.upcase
+        end
+      end
+    }
+    results = Acronym::Analyze.(source)
+    assert_equal :approve, results[:status]
+    assert_equal [], results[:comments]
+  end
+
   def test_scan_with_any_regex_passes
     source = %q{
       class Acronym
