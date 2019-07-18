@@ -15,11 +15,11 @@ class AcronymTest < Minitest::Test
     assert_equal [], results[:comments]
   end
 
-  def test_scan_passes
+  def test_scan_with_any_regex_passes
     source = %q{
       class Acronym
         def self.abbreviate(words)
-          words.scan(/\b[[:alpha:]]/).join.upcase
+          words.scan(/any/).join.upcase
         end
       end
     }

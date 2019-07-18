@@ -1,6 +1,5 @@
 module Acronym
   class Representation < SolutionRepresentation
-
     def uses_method_chain?
       target_method.body == s(:send,
                               s(:send,
@@ -17,15 +16,27 @@ module Acronym
     end
 
     def uses_scan?
-      target_method.body == s(:send,
-                              s(:send,
-                                s(:send,
-                                  s(:lvar, :words),
-                                  :scan,
-                                  s(:regexp, s(:str, "\\b[[:alpha:]]"), s(:regopt))
-                                ),
-                                :join),
-                              :upcase)
+      matchers = [
+        {
+          method_name: :upcase,
+        },
+        {
+          method_name: :join,
+          chained?: true
+        },
+        {
+          method_name: :scan,
+          receiver: s(:lvar, :words),
+          chained?: true,
+          arguments: [{ type: :regexp }]
+        },
+      ]
+
+      target_method.
+        body.
+        each_node(:send).
+        with_index.
+        all? { |node, i| node_matches?(node, matchers[i]) }
     end
 
     private
@@ -37,6 +48,24 @@ module Acronym
     memoize
     def target_module
       SA::Helpers.extract_module_or_class(root_node, "Acronym")
+    end
+
+    def node_matches?(node, matcher)
+      matcher.
+        map do |criteria|
+          key, expected_value = *criteria
+          criteria_value = node.send(key)
+
+          case criteria_value
+          when Array
+            criteria_value.each_with_index.all? do |n, i|
+              node_matches?(n, expected_value[i])
+            end
+          else
+            criteria_value == expected_value
+          end
+        end.
+        all?
     end
   end
 end
