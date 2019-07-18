@@ -29,6 +29,40 @@ module Acronym
       matches?(target_method.body, matchers)
     end
 
+    def uses_method_chain_with_block?
+      matchers = [
+        {
+          method_name: :upcase,
+        },
+        {
+          method_name: :join,
+          chained?: true
+        },
+        {
+          type: :block,
+          method_name: :map,
+          chained?: true,
+          arguments: s(:args, s(:arg, :word)),
+          body: s(:send, s(:lvar, :word), :chr)
+        },
+        {
+          method_name: :map,
+        },
+        {
+          method_name: :split,
+          chained?: true
+        },
+        {
+          method_name: :tr,
+          receiver: s(:lvar, :words),
+          chained?: true,
+          arguments: [{ to_ast: s(:str, "-") }, { to_ast: s(:str, " ") }]
+        }
+      ]
+
+      matches?(target_method.body, matchers, [:send, :block])
+    end
+
     def uses_scan?
       matchers = [
         {
@@ -84,9 +118,9 @@ module Acronym
       SA::Helpers.extract_module_or_class(root_node, "Acronym")
     end
 
-    def matches?(body, matchers)
+    def matches?(body, matchers, types = [:send])
       body.
-        each_node(:send).
+        each_node(*types).
         with_index.
         all? { |node, i| node_matches?(node, matchers[i]) }
     end
