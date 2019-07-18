@@ -1,18 +1,32 @@
 module Acronym
   class Representation < SolutionRepresentation
     def uses_method_chain?
-      target_method.body == s(:send,
-                              s(:send,
-                                s(:send,
-                                  s(:send,
-                                    s(:send, s(:lvar, :words), :tr, s(:str, "-"), s(:str, " ")),
-                                    :split
-                                   ),
-                                   :map,
-                                  s(:block_pass, s(:sym, :chr))
-                                 ),
-                                 :join),
-                              :upcase)
+      matchers = [
+        {
+          method_name: :upcase,
+        },
+        {
+          method_name: :join,
+          chained?: true
+        },
+        {
+          method_name: :map,
+          arguments: [{ to_ast: s(:block_pass, s(:sym, :chr)) }],
+          chained?: true
+        },
+        {
+          method_name: :split,
+          chained?: true
+        },
+        {
+          method_name: :tr,
+          receiver: s(:lvar, :words),
+          chained?: true,
+          arguments: [{ to_ast: s(:str, "-") }, { to_ast: s(:str, " ") }]
+        }
+      ]
+
+      matches?(target_method.body, matchers)
     end
 
     def uses_scan?
@@ -32,11 +46,7 @@ module Acronym
         },
       ]
 
-      target_method.
-        body.
-        each_node(:send).
-        with_index.
-        all? { |node, i| node_matches?(node, matchers[i]) }
+      matches?(target_method.body, matchers)
     end
 
     def uses_split?
@@ -60,11 +70,7 @@ module Acronym
         }
       ]
 
-      target_method.
-        body.
-        each_node(:send).
-        with_index.
-        all? { |node, i| node_matches?(node, matchers[i]) }
+      matches?(target_method.body, matchers)
     end
 
     private
@@ -76,6 +82,13 @@ module Acronym
     memoize
     def target_module
       SA::Helpers.extract_module_or_class(root_node, "Acronym")
+    end
+
+    def matches?(body, matchers)
+      body.
+        each_node(:send).
+        with_index.
+        all? { |node, i| node_matches?(node, matchers[i]) }
     end
 
     def node_matches?(node, matcher)
