@@ -15,6 +15,19 @@ class AcronymTest < Minitest::Test
     assert_equal [], results[:comments]
   end
 
+  def test_lvar_name_not_tightly_coupled
+    source = %q{
+      class Acronym
+        def self.abbreviate(sentence)
+          sentence.tr('-', ' ').split.map(&:chr).join.upcase
+        end
+      end
+    }
+    results = Acronym::Analyze.(source)
+    assert_equal :approve, results[:status]
+    assert_equal [], results[:comments]
+  end
+
   def test_method_chaining_with_block_syntax_passes_with_comment
     source = %q{
       class Acronym
