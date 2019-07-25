@@ -30,6 +30,7 @@ module Acronym
     end
 
     def uses_method_chain_with_block?
+      arg = ArbitraryArg.new
       matchers = [
         {
           method_name: :upcase,
@@ -42,7 +43,7 @@ module Acronym
           type: :block,
           method_name: :map,
           chained?: true,
-          arguments: s(:args, s(:arg, :word))
+          arguments: arg,
         },
         {
           method_name: :map,
@@ -59,7 +60,7 @@ module Acronym
         },
         {
           method_name: :chr,
-          receiver: s(:lvar, :word)
+          receiver: arg.lvar
         }
       ]
 
@@ -150,5 +151,27 @@ end
 class ArbitraryLvar
   def ==(other)
     other.type == :lvar
+  end
+end
+
+class NamedLvar
+  attr_accessor :name
+
+  def ==(other)
+    other == Parser::AST::Node.new(:lvar, name)
+  end
+end
+
+class ArbitraryArg
+  def lvar
+    @lvar ||= NamedLvar.new
+  end
+
+  def ==(other)
+    if other.type == :args
+      lvar.name = other.first.node_parts
+    end
+
+    other.type == :args
   end
 end

@@ -41,6 +41,19 @@ class AcronymTest < Minitest::Test
     assert_equal ["ruby.acronym.block_syntax.shorthand"], results[:comments]
   end
 
+  def test_method_chaining_with_block_syntax_with_arbitrary_arg_passes
+    source = %q{
+      class Acronym
+        def self.abbreviate(words)
+          words.tr('-', ' ').split.map { |term| term.chr }.join.upcase
+        end
+      end
+    }
+    results = Acronym::Analyze.(source)
+    assert_equal :approve, results[:status]
+    assert_equal ["ruby.acronym.block_syntax.shorthand"], results[:comments]
+  end
+
   def test_module_method_passes
     source = %q{
       module Acronym
