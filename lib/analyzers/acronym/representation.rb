@@ -20,7 +20,7 @@ module Acronym
         },
         {
           method_name: :tr,
-          receiver: s(:lvar, :words),
+          receiver: ArbitraryLvar.new,
           chained?: true,
           arguments: [{ to_ast: s(:str, "-") }, { to_ast: s(:str, " ") }]
         }
@@ -53,7 +53,7 @@ module Acronym
         },
         {
           method_name: :tr,
-          receiver: s(:lvar, :words),
+          receiver: ArbitraryLvar.new,
           chained?: true,
           arguments: [{ to_ast: s(:str, "-") }, { to_ast: s(:str, " ") }]
         },
@@ -77,7 +77,7 @@ module Acronym
         },
         {
           method_name: :scan,
-          receiver: s(:lvar, :words),
+          receiver: ArbitraryLvar.new,
           chained?: true,
           arguments: [{ type: :regexp }]
         },
@@ -102,7 +102,7 @@ module Acronym
         },
         {
           method_name: :split,
-          receiver: s(:lvar, :words),
+          receiver: ArbitraryLvar.new,
           arguments: [{ type: :regexp }]
         }
       ]
@@ -140,9 +140,15 @@ module Acronym
               node_matches?(n, expected_value[i])
             end
           else
-            criteria_value == expected_value
+            expected_value == criteria_value
           end
         end
     end
+  end
+end
+
+class ArbitraryLvar
+  def ==(other)
+    other.type == :lvar
   end
 end
