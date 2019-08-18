@@ -173,10 +173,10 @@ module TwoFer
       raise FinishedFlowControlException
     end
 
-    def disapprove!(msg, *msg_args)
+    def disapprove!(msg, params = {})
       self.status = :disapprove
-      if msg_args.length > 0
-        self.comments << [MESSAGES[msg], *msg_args]
+      if params.length > 0
+        self.comments << {comment: MESSAGES[msg], params: params}
       else
         self.comments << MESSAGES[msg]
       end
