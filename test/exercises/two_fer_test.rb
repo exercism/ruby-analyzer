@@ -140,7 +140,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove, results[:status]
-    assert_equal [["ruby.two-fer.splat_args", :foos]], results[:comments]
+    assert_equal [["ruby.two-fer.splat_args", name_variable: :foos]], results[:comments]
   end
 
   # ### 

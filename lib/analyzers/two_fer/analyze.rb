@@ -52,7 +52,7 @@ module TwoFer
     # is sane and that it has valid arguments
     def check_method_signature!
       disapprove!(:missing_default_param) unless solution.has_one_parameter?
-      disapprove!(:splat_args, solution.first_parameter_name) if solution.uses_splat_args?
+      disapprove!(:splat_args, {name_variable: solution.first_parameter_name}) if solution.uses_splat_args?
       disapprove!(:missing_default_param) unless solution.first_paramater_has_default_value?
     end
 
