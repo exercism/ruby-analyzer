@@ -11,3 +11,5 @@ WORKDIR /opt/analyzer
 COPY . .
 
 RUN bundle install
+
+ENTRYPOINT ["sh", "/opt/analyzer/bin/run.sh"]
