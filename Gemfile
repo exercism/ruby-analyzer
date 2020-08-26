@@ -18,4 +18,5 @@ group :test do
   gem 'minitest-stub-const'
   gem 'mocha'
   gem 'pry'
+  gem 'simplecov', '~> 0.17.0'
 end

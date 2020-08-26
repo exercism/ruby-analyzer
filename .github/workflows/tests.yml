@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout using GitHub's checkout action
+      - uses: actions/checkout@v2
+
+      # Setup Ruby - this needs to match the version in the Gemfile
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@ec106b438a1ff6ff109590de34ddc62c540232e0
+        with:
+          ruby-version: 2.5.8
+
+      # Caching using GitHub's caching action
+      - name: Cache Bundler
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      # Install bundler and yarn dependencies
+      - name: Install dependencies
+        run: |
+          bundle config path vendor/bundle # This is needed for the caching above
+          bundle install --jobs 4 --retry 3
+
+      # Setup code climate
+      - name: Setup Code Climate test-reporter
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+
+      # Run the tests
+      - name: Run Ruby tests
+        env:
+          CAPTURE_CODE_COVERAGE: true
+        run: |
+          bundle exec rake test
+          ./cc-test-reporter format-coverage -t simplecov -o codeclimate.backend.json coverage/backend/.resultset.json
+
+      # Publish the coverage to CodeClimate
+      - name: Publish code coverage
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        env:
+          GIT_BRANCH: ${GITHUB_REF/refs\/heads\//}
+          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+        run: |
+          ./cc-test-reporter upload-coverage -i codeclimate.*.json

@@ -1,5 +1,7 @@
 # Exercism's Ruby Analyzer
 
+![Tests](https://github.com/exercism/ruby-analyzer/workflows/Tests/badge.svg)
+
 This is Exercism's automated analyzer for the Ruby track.
 
 It is run with `./bin/run.sh $EXERCISM $PATH_TO_FILES $PATH_FOR_OUTPUT` and will read the source code from `$PATH_TO_FILES` and write a JSON file with an analysis to `$PATH_FOR_OUTPUT`.
