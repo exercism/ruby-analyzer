@@ -6,7 +6,8 @@ RUN apk update && apk upgrade && \
 
 RUN gem install bundler -v 2.1.4
 
-RUN mkdir /opt/analyzer
-COPY . /opt/analyzer
 WORKDIR /opt/analyzer
+
+COPY . .
+
 RUN bundle install
