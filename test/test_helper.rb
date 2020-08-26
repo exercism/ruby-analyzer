@@ -1,3 +1,9 @@
+# This must happen above the env require below
+if ENV["CAPTURE_CODE_COVERAGE"]
+  require 'simplecov'
+  SimpleCov.start
+end
+
 gem 'minitest'
 
 require "minitest/autorun"
