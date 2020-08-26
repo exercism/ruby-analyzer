@@ -25,9 +25,7 @@ module SA
     attr_reader :node_to_search, :name, :found_constant
 
     def inspect_node(node)
-      if node.children.first.const_name == name
-        @found_constant = node
-      end
+      @found_constant = node if node.children.first.const_name == name
     end
   end
 end

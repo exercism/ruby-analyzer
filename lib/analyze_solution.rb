@@ -10,7 +10,7 @@ class AnalyzeSolution
     classified_exercise = exercise_slug.tr('-', '_').classify
     results = "#{classified_exercise}::Analyze".constantize.(code_to_analyze)
 
-    File.open(output_path / "analysis.json","w") do |f|
+    File.open(output_path / "analysis.json", "w") do |f|
       f.write(results.to_json)
     end
   end

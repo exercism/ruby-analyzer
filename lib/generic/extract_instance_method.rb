@@ -14,9 +14,7 @@ module SA
     end
 
     def on_def(node)
-      if node.method_name == name
-        @found_method = node
-      end
+      @found_method = node if node.method_name == name
     end
 
     private

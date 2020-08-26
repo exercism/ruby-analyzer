@@ -15,12 +15,12 @@ class Minitest::Test
   SOLUTION_PATH = Pathname.new('/tmp')
 end
 
-$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require "analyzer"
 
 class Minitest::Test
   def parse_ast(source)
-    @root_node ||= begin
+    @parse_ast ||= begin
       buffer        = Parser::Source::Buffer.new(nil)
       buffer.source = source
       builder       = RuboCop::AST::Builder.new

@@ -1,4 +1,4 @@
-$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require "analyzer"
 
 output = []
@@ -8,15 +8,15 @@ output = []
 
   path = File.expand_path("#{__FILE__}/../../analysis-data/#{slug}")
   p path
-  statuses = Hash.new {|h,k|h[k] = 0}
+  statuses = Hash.new { |h, k| h[k] = 0 }
   Dir.foreach(path) do |dir|
-    next if dir == "." || dir == ".."
+    next if [".", ".."].include?(dir)
 
     begin
       Analyzer.analyze(slug, "#{path}/#{dir}")
       res = JSON.parse(File.read("#{path}/#{dir}/analysis.json"))
       statuses[res['status']] += 1
-    rescue
+    rescue StandardError
       statuses["exploded"] += 1
     end
   end

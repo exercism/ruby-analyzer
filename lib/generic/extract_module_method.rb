@@ -18,13 +18,12 @@ module SA
 
     def on_sclass(node)
       # If we're in a class << self context
-      if node.children[0].self_type?
-        @found_method = ExtractInstanceMethod.(node.children[1], name)
-      end
+      @found_method = ExtractInstanceMethod.(node.children[1], name) if node.children[0].self_type?
     end
 
     def on_def(node)
       return unless node.method_name == name
+
       if @module_function_called
         @found_method = node
       else
@@ -37,7 +36,7 @@ module SA
       return unless node.method_name == name
 
       # Is this defined as self (where there is no constant)
-      # or on a specific module, and if so is this module the 
+      # or on a specific module, and if so is this module the
       # correct one?
       defined_on = node.children[0].const_name
       return unless defined_on.nil? || defined_on == module_name
@@ -51,10 +50,11 @@ module SA
     #   end
     def on_send(node)
       return unless node.method_name == :module_function
+
       if node.arguments?
         return unless @found_instance_method
 
-        if node.arguments.map{|a|a.value}.include?(name)
+        if node.arguments.map(&:value).include?(name)
           @found_method = @found_instance_method
           @found_instance_method = nil
         end
@@ -74,4 +74,3 @@ module SA
     end
   end
 end
-
