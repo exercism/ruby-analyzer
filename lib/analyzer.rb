@@ -29,8 +29,9 @@ EXERCISES.each do |exercise|
 end
 
 module Analyzer
-  def self.analyze(exercise_slug, path)
-    pathname = Pathname.new(path)
-    AnalyzeSolution.(exercise_slug, pathname)
+  def self.analyze(exercise_slug, solution_path, output_path)
+    solution_pathname = Pathname.new(solution_path)
+    output_pathname = Pathname.new(output_path)
+    AnalyzeSolution.(exercise_slug, solution_pathname, output_pathname)
   end
 end
