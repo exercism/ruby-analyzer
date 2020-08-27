@@ -3,7 +3,7 @@ module Acronym
     def uses_method_chain?
       matchers = [
         {
-          method_name: :upcase,
+          method_name: :upcase
         },
         {
           method_name: :join,
@@ -33,7 +33,7 @@ module Acronym
       arg = ArbitraryArg.new
       matchers = [
         {
-          method_name: :upcase,
+          method_name: :upcase
         },
         {
           method_name: :join,
@@ -43,10 +43,10 @@ module Acronym
           type: :block,
           method_name: :map,
           chained?: true,
-          arguments: arg,
+          arguments: arg
         },
         {
-          method_name: :map,
+          method_name: :map
         },
         {
           method_name: :split,
@@ -64,13 +64,13 @@ module Acronym
         }
       ]
 
-      matches?(target_method.body, matchers, [:send, :block])
+      matches?(target_method.body, matchers, %i[send block])
     end
 
     def uses_scan?
       matchers = [
         {
-          method_name: :upcase,
+          method_name: :upcase
         },
         {
           method_name: :join,
@@ -81,7 +81,7 @@ module Acronym
           receiver: ArbitraryLvar.new,
           chained?: true,
           arguments: [{ type: :regexp }]
-        },
+        }
       ]
 
       matches?(target_method.body, matchers)
@@ -90,7 +90,7 @@ module Acronym
     def uses_split?
       matchers = [
         {
-          method_name: :upcase,
+          method_name: :upcase
         },
         {
           method_name: :join,
@@ -168,9 +168,7 @@ class ArbitraryArg
   end
 
   def ==(other)
-    if other.type == :args
-      lvar.name = other.first.node_parts
-    end
+    lvar.name = other.first.node_parts if other.type == :args
 
     other.type == :args
   end

@@ -1,11 +1,11 @@
-EXERCISES = %w{
+EXERCISES = %w[
   two_fer
   acronym
-}
+].freeze
 
 FILENAMES = {
   "two-fer" => "two_fer.rb"
-}
+}.freeze
 
 require 'mandate'
 require 'json'

@@ -12,6 +12,8 @@ gem 'activesupport'
 
 gem 'parser'
 gem 'rubocop'
+gem 'rubocop-minitest'
+gem 'rubocop-performance'
 
 group :test do
   gem 'minitest', '~> 5.10', '!= 5.10.2'

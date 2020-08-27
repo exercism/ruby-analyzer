@@ -3,8 +3,8 @@ module Acronym
     include Mandate
 
     MESSAGES = {
-      use_shorthand_block_syntax: "ruby.acronym.block_syntax.shorthand", # "Use ruby's short hand block syntax to be more concise"
-    }
+      use_shorthand_block_syntax: "ruby.acronym.block_syntax.shorthand" # "Use ruby's short hand block syntax to be more concise"
+    }.freeze
 
     def analyze!
       approve! if solution.uses_method_chain?
@@ -16,7 +16,6 @@ module Acronym
     end
 
     private
-
     def approve!(msg = nil)
       self.comments << MESSAGES[msg] if msg
       self.status = :approve

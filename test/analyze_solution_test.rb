@@ -1,7 +1,6 @@
 require "test_helper"
 
 class AnalyzeSolutionTest < Minitest::Test
-
   def test_that_it_constantizes_correctly
     code = mock
     analyzer = mock

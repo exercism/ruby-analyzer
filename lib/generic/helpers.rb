@@ -25,7 +25,7 @@ module SA
 
       # Without a begin block we just have one line,
       # so we return the method body, which *is* the first line
-      return method.body
+      method.body
     end
 
     def self.num_lines_in_method(method)

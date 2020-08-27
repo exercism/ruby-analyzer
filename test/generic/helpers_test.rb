@@ -22,60 +22,60 @@ module SA
     end
 
     def test_extract_first_line_from_method_works_with_single_line_method
-      source = %q{
+      source = '
         def foobar
           puts("foobar")
         end
-      }
+      '
       method_ast = extract_method_from_ast(source)
       expected = s(:send, nil, :puts, s(:str, "foobar"))
-      actual = Helpers::extract_first_line_from_method(method_ast)
+      actual = Helpers.extract_first_line_from_method(method_ast)
       assert_equal expected, actual
     end
 
     def test_extract_first_line_from_method_works_with_multi_line_method
-      source = %q{
+      source = '
         def foobar
           puts("foobar")
           puts("barfoo")
         end
-      }
+      '
       method_ast = extract_method_from_ast(source)
       expected = s(:send, nil, :puts, s(:str, "foobar"))
-      actual = Helpers::extract_first_line_from_method(method_ast)
+      actual = Helpers.extract_first_line_from_method(method_ast)
       assert_equal expected, actual
     end
 
     def test_num_lines_in_method_works_with_single_line_method
-      source = %q{
+      source = '
         def foobar
           puts("foobar")
         end
-      }
+      '
       method_ast = extract_method_from_ast(source)
-      assert_equal 1, Helpers::num_lines_in_method(method_ast)
+      assert_equal 1, Helpers.num_lines_in_method(method_ast)
     end
 
     def test_num_lines_in_method_works_with_single_muliline_method
-      source = %q{
+      source = '
         def foobar
           puts("foobar")
           puts("barfoo")
         end
-      }
+      '
       method_ast = extract_method_from_ast(source)
-      assert_equal 2, Helpers::num_lines_in_method(method_ast)
+      assert_equal 2, Helpers.num_lines_in_method(method_ast)
     end
 
     def test_num_lines_in_method_works_with_single_line_split
-      source = %q{
+      source = '
         def foobar
           puts "foobar" +
                "barfoo"
         end
-      }
+      '
       method_ast = extract_method_from_ast(source)
-      assert_equal 1, Helpers::num_lines_in_method(method_ast)
+      assert_equal 1, Helpers.num_lines_in_method(method_ast)
     end
 
     def test_lvar_fails_without_lvar

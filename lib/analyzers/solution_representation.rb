@@ -14,7 +14,7 @@ class SolutionRepresentation
       # If the previous line or this line is
       # just a whitespace line, don't consider it
       # when checking for indentation
-      unless previous_line == nil ||
+      unless previous_line.nil? ||
              previous_line =~ /^\s*\n*$/ ||
              line =~ /^\s*\n*$/
 

@@ -32,8 +32,8 @@ module TwoFer
       loc = single_line_body
 
       loc.children[0] == s(:str, "One for ") &&
-      loc.children[1] == s(:begin, s(:lvar, first_parameter_name)) &&
-      loc.children[2] == s(:str, ", one for me.")
+        loc.children[1] == s(:begin, s(:lvar, first_parameter_name)) &&
+        loc.children[2] == s(:str, ", one for me.")
     end
 
     # "One for " + name + ", one for me."
@@ -41,7 +41,7 @@ module TwoFer
       loc = single_line_body
 
       loc.method_name == :+ &&
-      loc.arguments[0].type == :str
+        loc.arguments[0].type == :str
     end
 
     # format("One for %s, one for me.", name)
@@ -49,9 +49,9 @@ module TwoFer
       loc = single_line_body
 
       loc.method_name == :format &&
-      loc.receiver == nil &&
-      loc.arguments[0].type == :str &&
-      loc.arguments[1].type == :lvar
+        loc.receiver.nil? &&
+        loc.arguments[0].type == :str &&
+        loc.arguments[1].type == :lvar
     end
 
     # "One for %s, one for me." % name
@@ -59,8 +59,8 @@ module TwoFer
       loc = single_line_body
 
       loc.method_name == :% &&
-      loc.receiver.type == :str &&
-      loc.arguments[0].type == :lvar
+        loc.receiver.type == :str &&
+        loc.arguments[0].type == :lvar
     end
 
     def has_any_if_statements?
@@ -75,7 +75,7 @@ module TwoFer
       if_statement = if_statements.first
       conditional = SA::Helpers.extract_conditional_clause(if_statement)
 
-      # if name
+      # if name
       return true if SA::Helpers.lvar?(conditional, first_parameter_name)
 
       # if name.nil?
@@ -90,8 +90,7 @@ module TwoFer
       return true if SA::Helpers.lvar?(conditional.first_argument, first_parameter_name) &&
                      conditional.receiver == default_argument
 
-
-      return false
+      false
     end
 
     def reassigns_parameter?
@@ -106,7 +105,7 @@ module TwoFer
       assignment = or_asgn_statements.first
 
       assignment.children[0] == s(:lvasgn, first_parameter_name) &&
-      assignment.children[1] == s(:str, "you")
+        assignment.children[1] == s(:str, "you")
     end
 
     private
@@ -134,7 +133,7 @@ module TwoFer
     def single_line_body
       if target_method.body.return_type?
         target_method.body.children.first
-      else #if target_method.body.dstr_type?
+      else # if target_method.body.dstr_type?
         target_method.body
       end
     end
@@ -150,4 +149,3 @@ module TwoFer
     end
   end
 end
-
