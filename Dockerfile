@@ -6,9 +6,6 @@ RUN apk update && apk upgrade && \
 
 RUN gem install bundler -v 2.1.4
 
-RUN wget -P /usr/local/bin https://github.com/exercism/tooling-webserver/releases/latest/download/tooling_webserver && \
-    chmod +x /usr/local/bin/tooling_webserver
-
 WORKDIR /opt/analyzer
 
 COPY . .

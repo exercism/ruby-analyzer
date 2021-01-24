@@ -5,7 +5,7 @@ EXERCISES = %w[
 
 FILENAMES = {
   "two-fer" => "two_fer.rb"
-}.freeze
+}
 
 require 'mandate'
 require 'json'
