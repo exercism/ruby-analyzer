@@ -3,3 +3,4 @@ scripts/
 node_modules/
 .appends
 .git
+.github
