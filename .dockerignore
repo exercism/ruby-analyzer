@@ -1,3 +1,4 @@
 test/
 scripts/
 node_modules/
+.appends
