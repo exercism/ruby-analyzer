@@ -4,7 +4,8 @@ EXERCISES = %w[
 ].freeze
 
 FILENAMES = {
-  "two-fer" => "two_fer.rb"
+  "acronym" => "acronym.rb",
+  "two-fer" => "two_fer.rb",
 }
 
 require 'mandate'
