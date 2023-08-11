@@ -1,60 +1,35 @@
 name: Tests
 
 on:
-  push:
-    branches: [master]
   pull_request:
-    branches: [master]
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-      # Checkout using GitHub's checkout action
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
 
-      # Setup Ruby - this needs to match the version in the Gemfile
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@ec106b438a1ff6ff109590de34ddc62c540232e0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4c0219f9ac95b02789c1075625400b2acbff50b1
         with:
-          ruby-version: 2.5.8
+          install: true
 
-      # Caching using GitHub's caching action
-      - name: Cache Bundler
-        uses: actions/cache@v2
+      - name: Build Docker image and store in cache
+        uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
+          context: .
+          push: false
+          load: true
+          tags: exercism/ruby-representer
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # Install bundler and yarn dependencies
-      - name: Install dependencies
-        run: |
-          bundle config path vendor/bundle # This is needed for the caching above
-          bundle install --jobs 4 --retry 3
-
-      # Setup code climate
-      - name: Setup Code Climate test-reporter
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-
-      # Run the tests
-      - name: Run Ruby tests
-        env:
-          CAPTURE_CODE_COVERAGE: true
-        run: |
-          bundle exec rake test
-          ./cc-test-reporter format-coverage -t simplecov -o codeclimate.backend.json coverage/backend/.resultset.json
-
-      # Publish the coverage to CodeClimate
-      - name: Publish code coverage
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        env:
-          GIT_BRANCH: ${GITHUB_REF/refs\/heads\//}
-          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-        run: |
-          ./cc-test-reporter upload-coverage -i codeclimate.*.json
+      - name: Run Tests in Docker
+        run: bin/run-tests-in-docker.sh
