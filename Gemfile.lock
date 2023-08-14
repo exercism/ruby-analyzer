@@ -16,7 +16,7 @@ GEM
     json (2.3.1)
     mandate (0.3.0)
     method_source (1.0.0)
-    minitest (5.14.1)
+    minitest (5.19.0)
     minitest-stub-const (0.6)
     mocha (1.11.2)
     parallel (1.19.2)
@@ -74,4 +74,4 @@ DEPENDENCIES
   simplecov (~> 0.17.0)
 
 BUNDLED WITH
-   1.17.3
+   2.4.18
