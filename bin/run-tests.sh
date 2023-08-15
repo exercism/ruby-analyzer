@@ -21,10 +21,6 @@ for test_dir in tests/*/*; do
     expected_results_file_path="${test_dir_path}/expected_analysis.json"
     test_slug=$(echo "${test_dir}" | awk -F/ '{ print $2 }')
 
-    echo "${test_slug}"
-    echo "${test_dir_path}"
-    echo "${test_dir_path}"
-
     bin/run.sh "${test_slug}" "${test_dir_path}" "${test_dir_path}"
 
     # echo "${test_dir_name}: comparing analysis.json to expected_analysis.json"
