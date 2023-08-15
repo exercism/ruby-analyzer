@@ -4,12 +4,20 @@ RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh && \
     apk add build-base gcc wget git
 
-RUN gem install bundler -v 2.4.18
+COPY Gemfile Gemfile.lock .
+
+RUN gem install bundler:2.4.18 && \
+    bundle config set without 'development test' && \
+    bundle install
+
+FROM ruby:3.2.2-alpine3.18 AS runtime
+
+RUN apk add --no-cache bash
 
 WORKDIR /opt/analyzer
 
-COPY . .
+COPY --from=build /usr/local/bundle /usr/local/bundle
 
-RUN bundle install
+COPY . .
 
 ENTRYPOINT ["sh", "/opt/analyzer/bin/run.sh"]
