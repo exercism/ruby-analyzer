@@ -315,7 +315,7 @@ class TwoFerTest < Minitest::Test
     '
     results = TwoFer::Analyze.(source)
     assert_equal :refer_to_mentor, results[:status]
-    assert_equal [], results[:comments]
+    assert_empty results[:comments]
   end
 
   ['

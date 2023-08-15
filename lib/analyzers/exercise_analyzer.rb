@@ -23,8 +23,8 @@ class ExerciseAnalyzer
 
   def results
     {
-      status: status,
-      comments: comments
+      status:,
+      comments:
     }
   end
 

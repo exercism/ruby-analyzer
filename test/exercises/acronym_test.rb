@@ -12,7 +12,7 @@ class AcronymTest < Minitest::Test
     "
     results = Acronym::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
+    assert_empty results[:comments]
   end
 
   def test_lvar_name_not_tightly_coupled
@@ -25,7 +25,7 @@ class AcronymTest < Minitest::Test
     "
     results = Acronym::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
+    assert_empty results[:comments]
   end
 
   def test_method_chaining_with_block_syntax_passes_with_comment
@@ -64,7 +64,7 @@ class AcronymTest < Minitest::Test
     "
     results = Acronym::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
+    assert_empty results[:comments]
   end
 
   def test_refers_to_mentor_with_method_not_matching
@@ -101,7 +101,7 @@ class AcronymTest < Minitest::Test
     '
     results = Acronym::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
+    assert_empty results[:comments]
   end
 
   def test_split_with_any_regex_passes
@@ -114,6 +114,6 @@ class AcronymTest < Minitest::Test
     '
     results = Acronym::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [], results[:comments]
+    assert_empty results[:comments]
   end
 end

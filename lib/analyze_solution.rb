@@ -11,7 +11,7 @@ class AnalyzeSolution
     results = "#{classified_exercise}::Analyze".constantize.(code_to_analyze)
 
     File.open(output_path / "analysis.json", "w") do |f|
-      f.write(results.to_json + "\n")
+      f.write("#{results.to_json}\n")
     end
   end
 end

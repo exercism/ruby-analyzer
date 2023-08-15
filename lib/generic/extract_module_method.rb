@@ -9,6 +9,7 @@ module SA
       @found_instance_method = nil
 
       @module_function_called = false
+      super()
     end
 
     def call

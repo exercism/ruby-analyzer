@@ -5,8 +5,8 @@ EXERCISES = %w[
 
 FILENAMES = {
   "acronym" => "acronym.rb",
-  "two-fer" => "two_fer.rb",
-}
+  "two-fer" => "two_fer.rb"
+}.freeze
 
 require 'mandate'
 require 'json'

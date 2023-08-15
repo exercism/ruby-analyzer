@@ -9,6 +9,7 @@ module SA
       define_singleton_method "on_#{node_type}" do |node|
         found_methods << node
       end
+      super()
     end
 
     def call
