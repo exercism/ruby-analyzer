@@ -6,6 +6,7 @@ module SA
       @node_to_search = node_to_search
       @name = name
       @found_constant = nil
+      super()
     end
 
     def call

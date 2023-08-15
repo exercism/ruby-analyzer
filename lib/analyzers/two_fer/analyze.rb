@@ -161,7 +161,7 @@ module TwoFer
 
     def approve_if_whitespace_is_sensible!(msg = nil, params = {})
       if solution.indentation_is_sensible?
-        self.comments << { comment: MESSAGES[msg], params: params } if msg
+        self.comments << { comment: MESSAGES[msg], params: } if msg
         self.status = :approve
 
         raise FinishedFlowControlException
@@ -180,7 +180,7 @@ module TwoFer
     def disapprove!(msg, params = {})
       self.status = :disapprove
       self.comments << if params.length > 0
-                         { comment: MESSAGES[msg], params: params }
+                         { comment: MESSAGES[msg], params: }
                        else
                          MESSAGES[msg]
                        end
