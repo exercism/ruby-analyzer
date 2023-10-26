@@ -9,7 +9,28 @@ on:
       - main
 
 jobs:
-  test:
+  unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@52b8784594ec115fd17094752708121dc5dabb47
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Install gems
+        run: bundle install
+
+      - name: Run tests
+        run: bundle exec rake test
+
+  smoke_tests:
+    name: Smoke tests
     runs-on: ubuntu-22.04
 
     steps:
@@ -27,7 +48,7 @@ jobs:
           context: .
           push: false
           load: true
-          tags: exercism/ruby-representer
+          tags: exercism/ruby-analyzer
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
