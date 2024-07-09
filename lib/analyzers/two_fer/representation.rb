@@ -108,7 +108,6 @@ module TwoFer
         assignment.children[1] == s(:str, "you")
     end
 
-    private
     memoize
     def parameters
       target_method.arguments
