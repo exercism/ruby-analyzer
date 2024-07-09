@@ -8,7 +8,7 @@ gem 'minitest'
 
 require "minitest/autorun"
 require 'minitest/pride'
-require "mocha/setup"
+require "mocha/minitest"
 
 class Minitest::Test
   SAFE_WRITE_PATH = Pathname.new('/tmp/output')
