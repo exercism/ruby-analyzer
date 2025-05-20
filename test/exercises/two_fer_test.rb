@@ -336,7 +336,12 @@ class TwoFerTest < Minitest::Test
         "One for %s, one for me." % name
      end
     end
-  '].each.with_index do |source, idx|
+  ', '
+    class TwoFer
+     def self.two_fer(name="you")
+     "One for %s, one for me." % name
+     end
+    end'].each.with_index do |source, idx|
     define_method "test_incorrect_indentation_#{idx}" do
       # skip
       results = TwoFer::Analyze.(source)

@@ -6,28 +6,13 @@ class SolutionRepresentation
     @code_to_analyze = code_to_analyze
   end
 
-  # REFACTOR: This could be refactored to strip blank
-  # lines and then use each_cons(2).
   def indentation_is_sensible?
-    previous_line = nil
-    code_to_analyze.lines.each do |line|
-      # If the previous line or this line is
-      # just a whitespace line, don't consider it
-      # when checking for indentation
-      unless previous_line.nil? ||
-             previous_line =~ /^\s*\n*$/ ||
-             line =~ /^\s*\n*$/
+    code_to_analyze.lines.reject { |line| line =~ /^\s*\n*$/ }.each_cons(2).all? do |lines|
+      line_1_space = lines.first[/^ */].size
+      line_2_space = lines.last[/^ */].size
 
-        previous_line_lspace = previous_line[/^ */].size
-        line_lspace = line[/^ */].size
-
-        return false if (previous_line_lspace - line_lspace).abs > 2
-      end
-
-      previous_line = line
+      [0, 2].include? (line_2_space - line_1_space).abs
     end
-
-    true
   end
 
   def has_target_module?
