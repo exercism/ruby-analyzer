@@ -1,11 +1,13 @@
 EXERCISES = %w[
   two_fer
   acronym
+  leap
 ].freeze
 
 FILENAMES = {
   "acronym" => "acronym.rb",
-  "two-fer" => "two_fer.rb"
+  "two-fer" => "two_fer.rb",
+  "leap" => "leap.rb"
 }.freeze
 
 require 'mandate'
