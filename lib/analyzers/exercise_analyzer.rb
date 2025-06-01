@@ -28,6 +28,38 @@ class ExerciseAnalyzer
     }
   end
 
+  def approve_if_whitespace_is_sensible(msg = nil, params = {})
+    if solution.indentation_is_sensible?
+      self.comments << if params.any?
+                         { comment: msg, params: }
+                       else
+                         msg
+                       end
+      self.status = :approve
+
+      raise FinishedFlowControlException
+    else
+      disapprove("ruby.general.incorrect_indentation")
+    end
+  end
+
+  def disapprove(msg, params = {})
+    self.status = :disapprove
+    self.comments << if params.any?
+                       { comment: msg, params: }
+                     else
+                       msg
+                     end
+
+    raise FinishedFlowControlException
+  end
+
+  def refer_to_mentor
+    self.status = :refer_to_mentor
+
+    raise FinishedFlowControlException
+  end
+
   private
   attr_reader :solution
 

@@ -2,6 +2,7 @@ EXERCISES = %w[
   two_fer
   acronym
   leap
+  high-scores
 ].freeze
 
 FILENAMES = {

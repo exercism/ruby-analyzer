@@ -2,7 +2,6 @@ module TwoFer
   MESSAGES = {
     no_module: "ruby.general.no_target_module",
     no_method: "ruby.general.no_target_method",
-    incorrect_indentation: "ruby.general.incorrect_indentation",
     explicit_return: "ruby.general.explicit_return", # "The last line automatically gets returned"
     splat_args: "ruby.two-fer.splat_args", # "Rather than using *%s, how about actually setting a parameter called 'name'?"
     missing_default_param: "ruby.two-fer.missing_default_param", # "There is no correct default param - the tests will fail"
@@ -32,7 +31,7 @@ module TwoFer
 
       # We don't have any idea about this solution, so let's refer it to a
       # mentor and get exit our analysis.
-      refer_to_mentor!
+      refer_to_mentor
     end
 
     # ###
@@ -43,16 +42,16 @@ module TwoFer
     # solution is correct and that there is nothing structural
     # stopping it from passing the tests
     def check_structure!
-      disapprove!(:no_module) unless solution.has_target_module?
-      disapprove!(:no_method) unless solution.has_target_method?
+      disapprove(MESSAGES[:no_module]) unless solution.has_target_module?
+      disapprove(MESSAGES[:no_method]) unless solution.has_target_method?
     end
 
     # Then we we want to ensure that the method signature
     # is sane and that it has valid arguments
     def check_method_signature!
-      disapprove!(:missing_default_param) unless solution.has_one_parameter?
-      disapprove!(:splat_args, { name_variable: solution.first_parameter_name }) if solution.uses_splat_args?
-      disapprove!(:missing_default_param) unless solution.first_paramater_has_default_value?
+      disapprove(MESSAGES[:missing_default_param]) unless solution.has_one_parameter?
+      disapprove(MESSAGES[:splat_args], { name_variable: solution.first_parameter_name }) if solution.uses_splat_args?
+      disapprove(MESSAGES[:missing_default_param]) unless solution.first_paramater_has_default_value?
     end
 
     # There is one optimal solution for two-fer which needs
@@ -79,7 +78,7 @@ module TwoFer
         if solution.string_interpolation_is_correct?
           approve_if_implicit_return!(:string_interpolation, { name_variable: solution.first_parameter_name })
         else
-          refer_to_mentor!
+          refer_to_mentor
         end
       end
 
@@ -100,7 +99,7 @@ module TwoFer
 
       # If we have a one-line method that passes the tests, then it's not
       # something we've planned for, so let's refer it to a mentor
-      refer_to_mentor!
+      refer_to_mentor
     end
 
     # The most common error in twofer is people using conditionals
@@ -111,15 +110,15 @@ module TwoFer
       return unless solution.has_any_if_statements?
 
       # If there is more than one statement, then let's refer this to a mentor
-      refer_to_mentor! unless solution.has_single_if_statement?
+      refer_to_mentor unless solution.has_single_if_statement?
 
       # If the person checks the default paramter, then we can always tell them
       # just to set this to a more sensible value (ie "you")
-      disapprove!(:incorrect_default_param) if solution.uses_default_param_in_if_statement?
+      disapprove(MESSAGES[:incorrect_default_param]) if solution.uses_default_param_in_if_statement?
 
       # If we have an if without that does not do an expected comparison,
       # let's refer this to a mentor and get out of here!
-      refer_to_mentor!
+      refer_to_mentor
     end
 
     # Sometimes, rather than setting a variable, people reassign the input param e.g.
@@ -128,15 +127,15 @@ module TwoFer
       return unless solution.reassigns_parameter?
 
       # If there is more than one statement, then let's refer this to a mentor
-      refer_to_mentor! if solution.reassigns_parameter_multiple_times?
+      refer_to_mentor if solution.reassigns_parameter_multiple_times?
 
       # If the solution reassigns the input paramater to "you" then we can warn
       # about reassigning the parameter and get out of here
-      disapprove!(:reassigning_param) if solution.reassigns_parameter_to_you?
+      disapprove(MESSAGES[:reassigning_param]) if solution.reassigns_parameter_to_you?
 
       # If we have a reassignment that doesn't conform to this
       # let's refer this to a mentor and get out of here!
-      refer_to_mentor!
+      refer_to_mentor
     end
 
     # Sometimes people specify the names (if name == "Alice" ...). If we
@@ -154,38 +153,9 @@ module TwoFer
     def approve_if_implicit_return!(msg = nil, params = {})
       # If we're got a correct solution but they've given an explicit
       # return then let's warn them against that.
-      disapprove!(:explicit_return) if solution.has_explicit_return?
+      disapprove(MESSAGES[:explicit_return]) if solution.has_explicit_return?
 
-      approve_if_whitespace_is_sensible!(msg, params)
-    end
-
-    def approve_if_whitespace_is_sensible!(msg = nil, params = {})
-      if solution.indentation_is_sensible?
-        self.comments << { comment: MESSAGES[msg], params: } if msg
-        self.status = :approve
-
-        raise FinishedFlowControlException
-
-      else
-        disapprove!(:incorrect_indentation)
-      end
-    end
-
-    def refer_to_mentor!
-      self.status = :refer_to_mentor
-
-      raise FinishedFlowControlException
-    end
-
-    def disapprove!(msg, params = {})
-      self.status = :disapprove
-      self.comments << if params.length > 0
-                         { comment: MESSAGES[msg], params: }
-                       else
-                         MESSAGES[msg]
-                       end
-
-      raise FinishedFlowControlException
+      approve_if_whitespace_is_sensible(MESSAGES[msg], params)
     end
   end
 end
