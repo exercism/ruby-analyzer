@@ -139,7 +139,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :disapprove, results[:status]
-    assert_equal [{ comment: "ruby.two-fer.splat_args", params: { name_variable: :foos } }], results[:comments]
+    assert_equal [{comment: "ruby.two-fer.splat_args", params: {name_variable: :foos}}], results[:comments]
   end
 
   # ###
@@ -156,7 +156,7 @@ class TwoFerTest < Minitest::Test
     '
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [{ comment: "ruby.two-fer.string_concatenation", params: { name_variable: :name } }], results[:comments]
+    assert_equal [{comment: "ruby.two-fer.string_concatenation", params: {name_variable: :name}}], results[:comments]
   end
 
   def test_string_interpolation_passes
@@ -169,7 +169,7 @@ class TwoFerTest < Minitest::Test
     }
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [{ comment: "ruby.two-fer.string_interpolation", params: { name_variable: :name } }], results[:comments]
+    assert_equal [{comment: "ruby.two-fer.string_interpolation", params: {name_variable: :name}}], results[:comments]
   end
 
   def test_for_kernel_format
@@ -183,7 +183,7 @@ class TwoFerTest < Minitest::Test
     '
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [{ comment: "ruby.two-fer.kernel_format", params: { name_variable: :name } }], results[:comments]
+    assert_equal [{comment: "ruby.two-fer.kernel_format", params: {name_variable: :name}}], results[:comments]
   end
 
   def test_for_string_format
@@ -197,7 +197,7 @@ class TwoFerTest < Minitest::Test
     '
     results = TwoFer::Analyze.(source)
     assert_equal :approve, results[:status]
-    assert_equal [{ comment: "ruby.two-fer.string_format", params: { name_variable: :name } }], results[:comments]
+    assert_equal [{comment: "ruby.two-fer.string_format", params: {name_variable: :name}}], results[:comments]
   end
 
   def test_conditional_as_boolean

@@ -31,6 +31,23 @@ Layout/LineLength:
     - "test/exercises/*"
     - "lib/analyzers/*/analyze.rb"
 
+Layout/SpaceInsideHashLiteralBraces:
+  Description: "Use spaces inside hash literal braces - or don't."
+  StyleGuide: '#spaces-braces'
+  Enabled: true
+  VersionAdded: '0.49'
+  EnforcedStyle: no_space
+  SupportedStyles:
+    - space
+    - no_space
+    # 'compact' normally requires a space inside hash braces, with the exception
+    # that successive left braces or right braces are collapsed together
+    - compact
+  EnforcedStyleForEmptyBraces: no_space
+  SupportedStylesForEmptyBraces:
+    - space
+    - no_space
+
 Lint/SuppressedException:
   Exclude:
     - "test/**/*"

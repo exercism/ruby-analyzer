@@ -51,7 +51,7 @@ module TwoFer
     # is sane and that it has valid arguments
     def check_method_signature!
       disapprove!(:missing_default_param) unless solution.has_one_parameter?
-      disapprove!(:splat_args, { name_variable: solution.first_parameter_name }) if solution.uses_splat_args?
+      disapprove!(:splat_args, {name_variable: solution.first_parameter_name}) if solution.uses_splat_args?
       disapprove!(:missing_default_param) unless solution.first_paramater_has_default_value?
     end
 
@@ -77,7 +77,7 @@ module TwoFer
 
       if solution.uses_string_interpolation?
         if solution.string_interpolation_is_correct?
-          approve_if_implicit_return!(:string_interpolation, { name_variable: solution.first_parameter_name })
+          approve_if_implicit_return!(:string_interpolation, {name_variable: solution.first_parameter_name})
         else
           refer_to_mentor!
         end
@@ -85,17 +85,17 @@ module TwoFer
 
       # "One for " + name + ", one for me."
       if solution.uses_string_concatenation?
-        approve_if_implicit_return!(:string_concatenation, { name_variable: solution.first_parameter_name })
+        approve_if_implicit_return!(:string_concatenation, {name_variable: solution.first_parameter_name})
       end
 
       # format("One for %s, one for me.", name)
       if solution.uses_kernel_format?
-        approve_if_implicit_return!(:kernel_format, { name_variable: solution.first_parameter_name })
+        approve_if_implicit_return!(:kernel_format, {name_variable: solution.first_parameter_name})
       end
 
       # "One for %s, one for me." % name
       if solution.uses_string_format?
-        approve_if_implicit_return!(:string_format, { name_variable: solution.first_parameter_name })
+        approve_if_implicit_return!(:string_format, {name_variable: solution.first_parameter_name})
       end
 
       # If we have a one-line method that passes the tests, then it's not
@@ -161,7 +161,7 @@ module TwoFer
 
     def approve_if_whitespace_is_sensible!(msg = nil, params = {})
       if solution.indentation_is_sensible?
-        self.comments << { comment: MESSAGES[msg], params: } if msg
+        self.comments << {comment: MESSAGES[msg], params:} if msg
         self.status = :approve
 
         raise FinishedFlowControlException
@@ -180,7 +180,7 @@ module TwoFer
     def disapprove!(msg, params = {})
       self.status = :disapprove
       self.comments << if params.length > 0
-                         { comment: MESSAGES[msg], params: }
+                         {comment: MESSAGES[msg], params:}
                        else
                          MESSAGES[msg]
                        end

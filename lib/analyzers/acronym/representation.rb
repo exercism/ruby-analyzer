@@ -11,7 +11,7 @@ module Acronym
         },
         {
           method_name: :map,
-          arguments: [{ to_ast: s(:block_pass, s(:sym, :chr)) }],
+          arguments: [{to_ast: s(:block_pass, s(:sym, :chr))}],
           chained?: true
         },
         {
@@ -22,7 +22,7 @@ module Acronym
           method_name: :tr,
           receiver: ArbitraryLvar.new,
           chained?: true,
-          arguments: [{ to_ast: s(:str, "-") }, { to_ast: s(:str, " ") }]
+          arguments: [{to_ast: s(:str, "-")}, {to_ast: s(:str, " ")}]
         }
       ]
 
@@ -56,7 +56,7 @@ module Acronym
           method_name: :tr,
           receiver: ArbitraryLvar.new,
           chained?: true,
-          arguments: [{ to_ast: s(:str, "-") }, { to_ast: s(:str, " ") }]
+          arguments: [{to_ast: s(:str, "-")}, {to_ast: s(:str, " ")}]
         },
         {
           method_name: :chr,
@@ -80,7 +80,7 @@ module Acronym
           method_name: :scan,
           receiver: ArbitraryLvar.new,
           chained?: true,
-          arguments: [{ type: :regexp }]
+          arguments: [{type: :regexp}]
         }
       ]
 
@@ -99,12 +99,12 @@ module Acronym
         {
           method_name: :map,
           chained?: true,
-          arguments: [{ to_ast: s(:block_pass, s(:sym, :chr)) }]
+          arguments: [{to_ast: s(:block_pass, s(:sym, :chr))}]
         },
         {
           method_name: :split,
           receiver: ArbitraryLvar.new,
-          arguments: [{ type: :regexp }]
+          arguments: [{type: :regexp}]
         }
       ]
 
