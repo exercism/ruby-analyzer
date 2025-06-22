@@ -8,7 +8,8 @@ EXERCISES = %w[
 FILENAMES = {
   "acronym" => "acronym.rb",
   "two-fer" => "two_fer.rb",
-  "leap" => "leap.rb"
+  "leap" => "leap.rb",
+  "high-scores" => "high_scores.rb"
 }.freeze
 
 require 'mandate'
