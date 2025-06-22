@@ -7,7 +7,7 @@ class AnalyzeSolution
     code_to_analyze = File.read(solution_path / FILENAMES[exercise_slug])
 
     puts "Analysing #{exercise_slug}"
-    classified_exercise = exercise_slug.tr('-', '_').classify
+    classified_exercise = exercise_slug.split('-').map(&:capitalize).join
     results = "#{classified_exercise}::Analyze".constantize.(code_to_analyze)
 
     File.open(output_path / "analysis.json", "w") do |f|
