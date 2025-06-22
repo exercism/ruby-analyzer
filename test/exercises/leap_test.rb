@@ -1,6 +1,10 @@
 require "test_helper"
 
-class LeapTest < Minitest::Test
+class LeapTest < AnalyzerTest
+  def setup
+    @exercise_slug = "leap"
+  end
+
   def test_date_leap_method_is_disapproved
     source = <<~SOURCE
       class Year
@@ -10,9 +14,9 @@ class LeapTest < Minitest::Test
       end
     SOURCE
 
-    results = Leap::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.leap.std_lib"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.leap.std_lib"], results["comments"]
   end
 
   def test_date_julian_leap_method_is_disapproved
@@ -24,9 +28,9 @@ class LeapTest < Minitest::Test
       end
     SOURCE
 
-    results = Leap::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.leap.std_lib"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.leap.std_lib"], results["comments"]
   end
 
   def test_date_gregorian_leap_method_is_disapproved
@@ -38,9 +42,9 @@ class LeapTest < Minitest::Test
       end
     SOURCE
 
-    results = Leap::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.leap.std_lib"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.leap.std_lib"], results["comments"]
   end
 
   def test_custom_implementation_referred_to_mentor
@@ -52,8 +56,8 @@ class LeapTest < Minitest::Test
       end
     SOURCE
 
-    results = Leap::Analyze.(source)
-    assert_equal :refer_to_mentor, results[:status]
-    assert_empty results[:comments]
+    results = analysis_results(source)
+    assert_equal "refer_to_mentor", results["status"]
+    assert_empty results["comments"]
   end
 end

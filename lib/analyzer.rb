@@ -12,6 +12,8 @@ FILENAMES = {
   "high-scores" => "high_scores.rb"
 }.freeze
 
+ANALYSIS_FILENAME = "analysis.json".freeze
+
 require 'mandate'
 require 'json'
 require 'rubocop'

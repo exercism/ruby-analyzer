@@ -6,11 +6,10 @@ class AnalyzeSolution
   def call
     code_to_analyze = File.read(solution_path / FILENAMES[exercise_slug])
 
-    puts "Analysing #{exercise_slug}"
     classified_exercise = exercise_slug.split('-').map(&:capitalize).join
     results = "#{classified_exercise}::Analyze".constantize.(code_to_analyze)
 
-    File.open(output_path / "analysis.json", "w") do |f|
+    File.open(output_path / ANALYSIS_FILENAME, "w") do |f|
       f.write("#{results.to_json}\n")
     end
   end
