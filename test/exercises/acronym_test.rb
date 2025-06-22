@@ -1,5 +1,4 @@
 require "test_helper"
-require 'pry'
 
 class AcronymTest < Minitest::Test
   def test_method_chaining_passes
