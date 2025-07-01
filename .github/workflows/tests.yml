@@ -11,7 +11,7 @@ on:
 jobs:
   unit_tests:
     name: Unit tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
@@ -31,7 +31,7 @@ jobs:
 
   smoke_tests:
     name: Smoke tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
