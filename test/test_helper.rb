@@ -10,11 +10,6 @@ require "minitest/autorun"
 require 'minitest/pride'
 require "mocha/minitest"
 
-class Minitest::Test
-  SAFE_WRITE_PATH = Pathname.new('/tmp/output')
-  SOLUTION_PATH = Pathname.new('/tmp')
-end
-
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require "analyzer"
 
