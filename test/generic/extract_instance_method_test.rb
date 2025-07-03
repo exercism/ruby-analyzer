@@ -1,5 +1,4 @@
 require "test_helper"
-require 'pry'
 
 module SA
   class ExtractInstanceMethodTest < Minitest::Test
