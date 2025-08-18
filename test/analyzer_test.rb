@@ -1,16 +1,21 @@
 require "test_helper"
 
 class AnalyzerTest < Minitest::Test
-  def test_that_it_converts_to_path_and_runs
-    slug = mock
-    solution_path = mock
-    output_path = mock
-    solution_pathname = mock
-    output_pathname = mock
-    Pathname.expects(:new).with(solution_path).returns(solution_pathname)
-    Pathname.expects(:new).with(output_path).returns(output_pathname)
+  TMP_PATH = Pathname.new('/tmp')
 
-    AnalyzeSolution.expects(:call).with(slug, solution_pathname, output_pathname)
-    Analyzer.analyze(slug, solution_path, output_path)
+  protected
+  attr_reader :exercise_slug
+
+  def analysis_results(code = "")
+    solution_path = "#{TMP_PATH}/#{FILENAMES[exercise_slug]}"
+    analysis_path = "#{TMP_PATH}/#{ANALYSIS_FILENAME}"
+    File.open(solution_path, "w") do |f|
+      f.write("#{code}\n")
+    end
+    AnalyzeSolution.(exercise_slug, TMP_PATH, TMP_PATH)
+    JSON.parse(File.read(analysis_path))
+  ensure
+    File.delete solution_path if File.exist? solution_path
+    File.delete analysis_path if File.exist? analysis_path
   end
 end
