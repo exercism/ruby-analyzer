@@ -1,6 +1,10 @@
 require "test_helper"
 
-class TwoFerTest < Minitest::Test
+class TwoFerTest < AnalyzerTest
+  def setup
+    @exercise_slug = 'two-fer'
+  end
+
   def test_fixtures
     skip
     fixtures_dir = File.expand_path("#{__FILE__}/../../fixtures/two-fer/")
@@ -16,8 +20,8 @@ class TwoFerTest < Minitest::Test
       actual = TwoFer::Analyze.(File.read("#{tmp_dir}/#{id}/two_fer.rb"))
       expected = JSON.parse(File.read("#{tmp_dir}/#{id}/analysis.json"))
 
-      assert_equal expected['status'].to_s, actual[:status].to_s
-      assert_equal expected['comments'], actual[:comments]
+      assert_equal expected['status'].to_s, actual["status"].to_s
+      assert_equal expected['comments'], actual["comments"]
     end
   end
 
@@ -33,8 +37,7 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :approve, results[:status]
+    assert_equal "approve", analysis_results(source)["status"]
   end
 
   def test_simple_module_passes
@@ -46,8 +49,7 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :approve, results[:status]
+    assert_equal "approve", analysis_results(source)["status"]
   end
 
   def test_simple_module_with_bookkeeping_passes
@@ -63,8 +65,7 @@ class TwoFerTest < Minitest::Test
         VERSION = 10
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :approve, results[:status]
+    assert_equal "approve", analysis_results(source)["status"]
   end
 
   def test_different_module_name_fails
@@ -76,9 +77,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.general.no_target_module"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.general.no_target_module"], results["comments"]
   end
 
   # ###
@@ -94,9 +95,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.general.no_target_method"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.general.no_target_method"], results["comments"]
   end
 
   def test_missing_param
@@ -108,9 +109,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     )
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.missing_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.missing_default_param"], results["comments"]
   end
 
   def test_missing_default_value_fails
@@ -122,9 +123,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.missing_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.missing_default_param"], results["comments"]
   end
 
   def test_splat_fails
@@ -136,9 +137,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal [{comment: "ruby.two-fer.splat_args", params: {name_variable: :foos}}], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal [{"comment" => "ruby.two-fer.splat_args", "params" => {"name_variable" => "foos"}}], results["comments"]
   end
 
   # ###
@@ -153,9 +154,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     '
-    results = TwoFer::Analyze.(source)
-    assert_equal :approve, results[:status]
-    assert_equal [{comment: "ruby.two-fer.string_concatenation", params: {name_variable: :name}}], results[:comments]
+    results = analysis_results(source)
+    assert_equal "approve", results["status"]
+    assert_equal [{"comment" => "ruby.two-fer.string_concatenation", "params" => {"name_variable" => "name"}}], results["comments"]
   end
 
   def test_string_interpolation_passes
@@ -166,9 +167,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :approve, results[:status]
-    assert_equal [{comment: "ruby.two-fer.string_interpolation", params: {name_variable: :name}}], results[:comments]
+    results = analysis_results(source)
+    assert_equal "approve", results["status"]
+    assert_equal [{"comment" => "ruby.two-fer.string_interpolation", "params" => {"name_variable" => "name"}}], results["comments"]
   end
 
   def test_for_kernel_format
@@ -180,9 +181,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     '
-    results = TwoFer::Analyze.(source)
-    assert_equal :approve, results[:status]
-    assert_equal [{comment: "ruby.two-fer.kernel_format", params: {name_variable: :name}}], results[:comments]
+    results = analysis_results(source)
+    assert_equal "approve", results["status"]
+    assert_equal [{"comment" => "ruby.two-fer.kernel_format", "params" => {"name_variable" => "name"}}], results["comments"]
   end
 
   def test_for_string_format
@@ -194,9 +195,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     '
-    results = TwoFer::Analyze.(source)
-    assert_equal :approve, results[:status]
-    assert_equal [{comment: "ruby.two-fer.string_format", params: {name_variable: :name}}], results[:comments]
+    results = analysis_results(source)
+    assert_equal "approve", results["status"]
+    assert_equal [{"comment" => "ruby.two-fer.string_format", "params" => {"name_variable" => "name"}}], results["comments"]
   end
 
   def test_conditional_as_boolean
@@ -212,9 +213,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.incorrect_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
   end
 
   def test_conditional_with_nil
@@ -230,9 +231,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.incorrect_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
   end
 
   def test_conditional_with_nil_reversed
@@ -248,9 +249,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.incorrect_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
   end
 
   def test_conditional_with_string
@@ -266,9 +267,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.incorrect_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
   end
 
   def test_conditional_with_brackets
@@ -284,9 +285,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.incorrect_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
   end
 
   def test_interpolated_ternary
@@ -298,9 +299,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.incorrect_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
   end
 
   def test_unknown_solution
@@ -312,9 +313,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     '
-    results = TwoFer::Analyze.(source)
-    assert_equal :refer_to_mentor, results[:status]
-    assert_empty results[:comments]
+    results = analysis_results(source)
+    assert_equal "refer_to_mentor", results["status"]
+    assert_empty results["comments"]
   end
 
   ['
@@ -343,9 +344,9 @@ class TwoFerTest < Minitest::Test
     end'].each.with_index do |source, idx|
     define_method "test_incorrect_indentation_#{idx}" do
       # skip
-      results = TwoFer::Analyze.(source)
-      assert_equal :disapprove, results[:status]
-      assert_equal ["ruby.general.incorrect_indentation"], results[:comments]
+      results = analysis_results(source)
+      assert_equal "disapprove", results["status"]
+      assert_equal ["ruby.general.incorrect_indentation"], results["comments"]
     end
   end
 
@@ -358,9 +359,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.general.explicit_return"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.general.explicit_return"], results["comments"]
   end
 
   def test_reassigned_param
@@ -373,9 +374,9 @@ class TwoFerTest < Minitest::Test
         end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.reassigning_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.reassigning_param"], results["comments"]
   end
 
   def test_reassigned_param_using_conditional
@@ -389,9 +390,9 @@ class TwoFerTest < Minitest::Test
           end
       end
     }
-    results = TwoFer::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.two-fer.incorrect_default_param"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
   end
 end
 

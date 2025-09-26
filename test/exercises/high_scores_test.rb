@@ -1,6 +1,10 @@
 require "test_helper"
 
-class HighScoresTest < Minitest::Test
+class HighScoresTest < AnalyzerTest
+  def setup
+    @exercise_slug = "high-scores"
+  end
+
   def test_accepted_solution_is_approved_without_comment
     source = <<~SOURCE
       class HighScores
@@ -28,9 +32,9 @@ class HighScoresTest < Minitest::Test
       end
     SOURCE
 
-    results = HighScores::Analyze.(source)
-    assert_equal :approve, results[:status]
-    assert_empty results[:comments]
+    results = analysis_results(source)
+    assert_equal "approve", results["status"]
+    assert_empty results["comments"]
   end
 
   def test_solution_without_attr_reader_is_approved_with_comment
@@ -62,9 +66,9 @@ class HighScoresTest < Minitest::Test
       end
     SOURCE
 
-    results = HighScores::Analyze.(source)
-    assert_equal :approve, results[:status]
-    assert_equal ["ruby.high-scores.attr_reader"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "approve", results["status"]
+    assert_equal ["ruby.high-scores.attr_reader"], results["comments"]
   end
 
   def test_reordered_accepted_solution_is_approved_without_comment
@@ -94,9 +98,9 @@ class HighScoresTest < Minitest::Test
       end
     SOURCE
 
-    results = HighScores::Analyze.(source)
-    assert_equal :approve, results[:status]
-    assert_empty results[:comments]
+    results = analysis_results(source)
+    assert_equal "approve", results["status"]
+    assert_empty results["comments"]
   end
 
   def test_non_accepted_solution_is_referred_to_mentor
@@ -126,9 +130,9 @@ class HighScoresTest < Minitest::Test
       end
     SOURCE
 
-    results = HighScores::Analyze.(source)
-    assert_equal :refer_to_mentor, results[:status]
-    assert_empty results[:comments]
+    results = analysis_results(source)
+    assert_equal "refer_to_mentor", results["status"]
+    assert_empty results["comments"]
   end
 
   def test_solution_with_incorrect_indentation_is_disapproved
@@ -158,8 +162,8 @@ class HighScoresTest < Minitest::Test
       end
     SOURCE
 
-    results = HighScores::Analyze.(source)
-    assert_equal :disapprove, results[:status]
-    assert_equal ["ruby.general.incorrect_indentation"], results[:comments]
+    results = analysis_results(source)
+    assert_equal "disapprove", results["status"]
+    assert_equal ["ruby.general.incorrect_indentation"], results["comments"]
   end
 end
