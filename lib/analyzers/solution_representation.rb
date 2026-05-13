@@ -43,13 +43,6 @@ class SolutionRepresentation
   end
 
   def root_node
-    @root_node ||= begin
-      buffer        = Parser::Source::Buffer.new(nil)
-      buffer.source = code_to_analyze
-      builder       = RuboCop::AST::Builder.new
-      parser        = Parser::CurrentRuby.new(builder)
-
-      parser.parse(buffer)
-    end
+    @root_node ||= Prism::Translation::RubyParser.parse(code_to_analyze)
   end
 end

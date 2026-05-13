@@ -1,7 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require "analyzer"
 
-source = %q{
+source = '
 class TwoFer
     def self.two_fer(name = nil)
        name = "you" if name.nil?
@@ -9,7 +9,7 @@ class TwoFer
        "One for #{name}, one for me."
     end
 end
-}
+'
 
 puts "\n\n\n\n"
 pp TwoFer::Analyze.(source)

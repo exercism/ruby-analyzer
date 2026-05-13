@@ -23,12 +23,10 @@ for test_dir in tests/*/*; do
 
     bin/run.sh "${test_slug}" "${test_dir_path}" "${test_dir_path}"
 
-    # echo "${test_dir_name}: comparing analysis.json to expected_analysis.json"
-    # diff "${results_file_path}" "${expected_results_file_path}"
-
-    # if [ $? -ne 0 ]; then
-    #     exit_code=1
-    # fi
+    echo "${test_dir_name}: comparing analysis.json to expected_analysis.json"
+    if ! diff "${results_file_path}" "${expected_results_file_path}"; then
+        exit_code=1
+    fi
 done
 
-exit ${exit_code}
+exit "${exit_code}"
