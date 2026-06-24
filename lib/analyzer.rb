@@ -17,7 +17,7 @@ ANALYSIS_FILENAME = "analysis.json".freeze
 require 'mandate'
 require 'json'
 require 'rubocop'
-require 'parser/current'
+require 'prism'
 require 'active_support/inflector'
 
 require_relative "generic/helpers"

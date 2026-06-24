@@ -30,31 +30,31 @@ class TwoFerTest < AnalyzerTest
   # ###
   def test_simple_class_passes
     # skip
-    source = %q{
+    source = '
       class TwoFer
         def self.two_fer(name="you")
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     assert_equal "approve", analysis_results(source)["status"]
   end
 
   def test_simple_module_passes
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(name="you")
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     assert_equal "approve", analysis_results(source)["status"]
   end
 
   def test_simple_module_with_bookkeeping_passes
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(name="you")
           "One for #{name}, one for me."
@@ -64,19 +64,19 @@ class TwoFerTest < AnalyzerTest
       module Bookkeeping
         VERSION = 10
       end
-    }
+    '
     assert_equal "approve", analysis_results(source)["status"]
   end
 
   def test_different_module_name_fails
     # skip
-    source = %q{
+    source = '
       module SomethingElse
         def self.two_fer(name="you")
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.general.no_target_module"], results["comments"]
@@ -88,13 +88,13 @@ class TwoFerTest < AnalyzerTest
 
   def test_different_method_value_fails
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.foobar(name="you")
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.general.no_target_method"], results["comments"]
@@ -102,13 +102,13 @@ class TwoFerTest < AnalyzerTest
 
   def test_missing_param
     # skip
-    source = %q(
+    source = '
       module TwoFer
         def self.two_fer
           "One for #{name}, one for me."
         end
       end
-    )
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.two-fer.missing_default_param"], results["comments"]
@@ -116,13 +116,13 @@ class TwoFerTest < AnalyzerTest
 
   def test_missing_default_value_fails
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(name)
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.two-fer.missing_default_param"], results["comments"]
@@ -130,13 +130,13 @@ class TwoFerTest < AnalyzerTest
 
   def test_splat_fails
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(*foos)
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal [{"comment" => "ruby.two-fer.splat_args", "params" => {"name_variable" => "foos"}}], results["comments"]
@@ -160,13 +160,13 @@ class TwoFerTest < AnalyzerTest
   end
 
   def test_string_interpolation_passes
-    source = %q{
+    source = '
       class TwoFer
         def self.two_fer(name="you")
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "approve", results["status"]
     assert_equal [{"comment" => "ruby.two-fer.string_interpolation", "params" => {"name_variable" => "name"}}], results["comments"]
@@ -202,7 +202,7 @@ class TwoFerTest < AnalyzerTest
 
   def test_conditional_as_boolean
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(name=nil)
           if name
@@ -212,7 +212,7 @@ class TwoFerTest < AnalyzerTest
           end
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
@@ -220,7 +220,7 @@ class TwoFerTest < AnalyzerTest
 
   def test_conditional_with_nil
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(name=nil)
           if name == nil
@@ -230,7 +230,7 @@ class TwoFerTest < AnalyzerTest
           end
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
@@ -238,7 +238,7 @@ class TwoFerTest < AnalyzerTest
 
   def test_conditional_with_nil_reversed
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(name=nil)
           if nil == name
@@ -248,7 +248,7 @@ class TwoFerTest < AnalyzerTest
           end
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]
@@ -352,13 +352,13 @@ class TwoFerTest < AnalyzerTest
 
   def test_explit_return
     # skip
-    source = %q{
+    source = '
       class TwoFer
         def self.two_fer(name="you")
           return "One for #{name}, one for me."
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.general.explicit_return"], results["comments"]
@@ -366,14 +366,14 @@ class TwoFerTest < AnalyzerTest
 
   def test_reassigned_param
     # skip
-    source = %q{
+    source = '
       module TwoFer
         def self.two_fer(name=nil)
           name ||= "you"
           "One for #{name}, one for me."
         end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.two-fer.reassigning_param"], results["comments"]
@@ -381,7 +381,7 @@ class TwoFerTest < AnalyzerTest
 
   def test_reassigned_param_using_conditional
     # skip
-    source = %q{
+    source = '
       class TwoFer
           def self.two_fer(name = nil)
              name = "you" if name.nil?
@@ -389,7 +389,7 @@ class TwoFerTest < AnalyzerTest
              "One for #{name}, one for me."
           end
       end
-    }
+    '
     results = analysis_results(source)
     assert_equal "disapprove", results["status"]
     assert_equal ["ruby.two-fer.incorrect_default_param"], results["comments"]

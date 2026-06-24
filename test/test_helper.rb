@@ -15,14 +15,7 @@ require "analyzer"
 
 class Minitest::Test
   def parse_ast(source)
-    @parse_ast ||= begin
-      buffer        = Parser::Source::Buffer.new(nil)
-      buffer.source = source
-      builder       = RuboCop::AST::Builder.new
-      parser        = Parser::CurrentRuby.new(builder)
-
-      parser.parse(buffer)
-    end
+    @parse_ast ||= Prism::Translation::RubyParser.parse(source)
   end
 
   def extract_module_from_ast(source, classname = "TestModule")
